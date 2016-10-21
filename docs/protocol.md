@@ -5,7 +5,7 @@
 ### Client commands
 Command | Parameters | Description
 ------- | ---------- | -----------
-GREET | Username | Asking connection when no ID is known by the client
+GREET | Username, Public_key | Asking connection when no ID is known by the client
 HELLO | ID | Asking the connection with known ID
 WORD | Len_title, Len_content, Title, Content | Sending logged data for a word
 BREAK | Len_title, Len_content, Title, Content | Sending logged data for a breaking or special character
@@ -18,15 +18,15 @@ MBTN | Len_title, Len_content, Title, Content | Sending logged data for a mouse 
 
 **Command:** GREET
 ```
-Timestamp Type  Username
-long      char  "char*"
+Timestamp Type  Len_username  Len_key Username  Public_key
+long      char  int           int     char*     char*
 ```
 **Reply:**  
 RPL_ID  
 
 **Description:**  
-The client send a GREET command when no ID is found in the registry.  
-The server should reply with a new ID which should be store in client registry.
+The client send a GREET command when no ID is found in the registry. A Username and a public key generated client-side must be sent.  
+The server should reply with a new ID and a public key which should be stored in client registry along to the client private key.
 
 #### HELLO
 
@@ -49,7 +49,7 @@ If the ID is not correct the server will send a ERR_BAD_ID and wait for a GREET 
 **Command:** WORD | BREAK | MPOS | MBTN
 ```
 Timestamp Type  Len_title Len_content Title   Content
-long      char  int       int         "char*" "char*"
+long      char  int       int         char*   char*
 ```
 **Reply:**  
 RPL_RECEIVED  
@@ -74,21 +74,19 @@ A ERR_IO_ERROR can be send by the server if the data takes more space than it ca
 ---
 ## Server requests
 
-### Server commands
+### Server commands:
 Command | Parameters | Description
 ------- | ---------- | -----------
 MSG | Message | Used when sending message to the client
 START | Type | Used to start the logging of a specific data type
 STOP | Type | Used to stop the logging of a specific data type
 
-### Server commands:
-
 #### MSG
 
 **Command:** MSG  
 ```
 Code  Message
-int   "char*"
+int   char*
 ```
 **Description:**  
 The server can use the MSG command to send informations to the client.
@@ -131,7 +129,7 @@ Code | Short name | Description
 101 | START | Used by the server when asking the client to start specific logging tasks
 102 | STOP | Used by the server when asking the client to stop specific logging tasks
 ---- | ---------- | -----------
-200 | RPL_ID | Reply followed by a new ID to be stored and use for future connection
+200 | RPL_ID | Reply followed by a new ID and a key to be stored and use for future connection and message exchange
 201 | RPL_ID_OK | Reply to a correct connection ID to engage data logging
 202 | RPL_RECEIVED | Reply when a packet containing correct data format is received by the server
 ---- | ---------- | -----------
