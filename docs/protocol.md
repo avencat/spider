@@ -50,7 +50,7 @@ RPL_OK
 **Description:**  
 The client **MUST** send a SYN-ACK when receiving SYN-ACK command from the server.  
 NumberB is a number sent by the server with SYN-ACK command.  
-The server will reply RPL_OK and the client will be authorize to send a GREET or HELLO command.
+The server will reply RPL_OK and the client will be authorized to send a GREET or HELLO command.
 
 #### 1.2.2. GREET
 
@@ -63,8 +63,9 @@ long      char  int           int     char*     char*
 RPL_ID  
 
 **Description:**  
-The client send a GREET command when no ID is found in the registry. A Username and a public key generated client-side must be sent.  
-The server should reply with a new ID and a public key which should be stored in client registry along to the client private key.
+The client sends a GREET command when no ID is found in the registry. A Username and a public key generated client-side must be sent.  
+The server should reply with a new ID and a public key which should be stored in client registry along to the client private key.  
+Once the server key is received, every following message **MUST** be cipher.
 
 #### 1.2.3. HELLO
 
@@ -73,12 +74,12 @@ The server should reply with a new ID and a public key which should be stored in
 Timestamp Type  ID
 long      char  int
 ```
-**Reply:**  
+**Replies:**  
 RPL_ID_OK  
 ERR_BAD_ID  
 
 **Description:**  
-The client send a HOME command when an ID is found in the registry.  
+The client sends a HOME command when an ID is found in the registry.  
 The server should reply with a RPL_OK if the ID is correct.  
 If the ID is not correct the server will send a ERR_BAD_ID and wait for a GREET command.
 
@@ -91,13 +92,13 @@ If the ID is not correct the server will send a ERR_BAD_ID and wait for a GREET 
 Timestamp Type  Len_title Len_content Title   Content
 long      char  int       int         char*   char*
 ```
-**Reply:**  
+**Replies:**  
 RPL_RECEIVED  
 ERR_BAD_MSG_FORMAT  
 ERR_IO_ERROR
 
 **Description:**  
-The client send a WORD, BREAK, MPOS or MBTN command when it sends the logged data.  
+The client sends a WORD, BREAK, MPOS or MBTN command when it sends the logged data.  
 The title corresponds to the foreground window and content is relative to the type of data transferred.  
 
 * WORD will log the word typed by the user.  
@@ -139,7 +140,7 @@ long      char
 RPL_QUIT_OK
 
 **Description:**  
-The client send the QUIT command when he wants to disconnect from the server.  
+The client sends the QUIT command when he wants to disconnect from the server.  
 The client should wait for a RPL_QUIT_OK before closing connection.
 
 ---
