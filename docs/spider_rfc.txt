@@ -1,0 +1,698 @@
+Spider Vencat                                               K. Rochon
+Internet Draft                                              T. Touzet
+Intended status: Standards track                        A.Vencataderry
+                                                             L. Vezia
+                                                              EPITECH
+                                                          October 2016
+
+
+
+                              Spider Protocol
+
+
+Status of this Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF), its areas, and its working groups.  Note that
+   other groups may also distribute working documents as Internet-
+   Drafts.
+
+   Internet-Drafts are draft documents valid for a maximum of six
+   months and may be updated, replaced, or obsoleted by other documents
+   at any time.  It is inappropriate to use Internet-Drafts as
+   reference material or to cite them other than as "work in progress."
+
+   The list of current Internet-Drafts can be accessed at
+   http://www.ietf.org/ietf/1id-abstracts.txt
+
+   The list of Internet-Draft Shadow Directories can be accessed at
+   http://www.ietf.org/shadow.html
+
+   This Internet-Draft will expire on April 26, 200917.
+
+Copyright Notice
+
+   Copyright (c) 2016 IETF Trust and the persons identified as the
+   document authors. All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (http://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document. Please review these documents
+   carefully, as they describe your rights and restrictions with
+   respect to this document.
+
+Abstract
+
+
+
+Touzet                 Expires April 31, 2017                 [Page 1]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+   The Spider protocol has been developed over the last month to be
+   implemented in the spider project. This document defines the two-way
+   communication between the key-logger clients and the server.
+
+Table of Contents
+
+
+   1. Introduction ................................................ 2
+      1.1. Client ................................................. 3
+      1.2. Server ................................................. 3
+   2. Conventions used in this document............................ 3
+   3. Client requests ............................................. 3
+      3.1. Client commands list:................................... 4
+      3.2. Upon connection:........................................ 5
+         3.2.1. Handshake ......................................... 5
+            3.2.1.1. SYN: ......................................... 5
+            3.2.1.2. ACK .......................................... 5
+            3.2.1.3. GREET......................................... 5
+            3.2.1.4. HELLO......................................... 6
+      3.3. Log transfer ........................................... 6
+         3.3.1. WORD | BREAK | MPOS | MBTN......................... 6
+      3.4. Other requests:......................................... 7
+         3.4.1. PING .............................................. 7
+         3.4.2. QUIT .............................................. 7
+   4. Server requests: ............................................ 8
+      4.1. Server commands list:................................... 8
+      4.2. Upon connection:........................................ 8
+         4.2.1. SYN-ACK ........................................... 8
+      4.3. About data logging:..................................... 8
+         4.3.1. START ............................................. 8
+         4.3.2. STOP .............................................. 9
+      4.4. Other: ................................................. 9
+         4.4.1. MSG ............................................... 9
+         4.4.2. CLOSE ............................................. 9
+   5. Types: ...................................................... 9
+   6. Codes: ..................................................... 10
+   7. Security Considerations..................................... 11
+   8. Acknowledgments ............................................ 11
+
+1. Introduction
+
+   This RFC will cover protocols in place for the Spider software.
+
+   The Spider software is categorized as Keylogger. This software may
+   be considered as a virus as it will hide is presence and collect
+   data without any explicit permission.
+
+
+
+Touzet                 Expires April 31, 2017                 [Page 2]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+1.1. Client
+
+   The Spider client is a standalone program that log keystrokes, mouse
+   clicks and foreground windows on a Windows system.
+
+1.2. Server
+
+   The Spider server is a program that can accept multiple clients and
+   log their data in any form. The Spider server runs on a Unix based
+   system.
+
+2. Conventions used in this document
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in RFC 2119 [RFC2119].
+
+   In this document, these words will appear with that interpretation
+   only when in ALL CAPS. Lower case uses of these words are not to be
+   interpreted as carrying significance described in RFC 2119.
+
+   In this document, the characters ">>" preceding an indented line(s)
+   indicates a statement using the key words listed above. This
+   convention aids reviewers in quickly identifying or finding the
+   portions of this RFC covered by these keywords.
+
+3. Client requests
+
+   Client MUST use a three-way handshake protocol upon connection. If
+   server does not reply or if server does not accept data, the client
+   should keep data stored locally.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Touzet                 Expires April 31, 2017                 [Page 3]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+3.1. Client commands list:
+
+   +---------+-------------+------------------------------------------+
+   | Command | Parameters  | Description                              |
+   +---------+-------------+------------------------------------------+
+   | SYN     | NumberA     | First part of the three-way handshake    |
+   +---------+-------------+------------------------------------------+
+   | ACK     | NumberB + 1 | Last part of the three-way handshake     |
+   +---------+-------------+------------------------------------------+
+   | GREET   | Username,   | Asking connection when no ID is known by |
+   |         | Public_key  | the client                               |
+   +---------+-------------+------------------------------------------+
+   | HELLO   | ID          | Asking connection with known ID          |
+   +---------+-------------+------------------------------------------+
+   | WORD    | Len_title,  | Sending logged data for a word           |
+   |         | Len_content,|                                          |
+   |         | Title,      |                                          |
+   |         | Content     |                                          |
+   +---------+-------------+------------------------------------------+
+   | BREAK   | Len_title,  | Sending logged data for a breaking or    |
+   |         | Len_content,| special character                        |
+   |         | Title,      |                                          |
+   |         | Content     |                                          |
+   +---------+-------------+------------------------------------------+
+   | MPOS    | Len_title,  | Sending logged data for a cursor         |
+   |         | Len_content,| position when mouse is inactive for 1 to |
+   |         | Title,      | 2 second(s)                              |
+   |         | Content     |                                          |
+   +---------+-------------+------------------------------------------+
+   | MBTN    | Len_title,  | Sending logged data for a mouse button   |
+   |         | Len_content,| click                                    |
+   |         | Title,      |                                          |
+   |         | Content     |                                          |
+   +---------+-------------+------------------------------------------+
+   | PING    |             | Use to keep connection alive             |
+   +---------+-------------+------------------------------------------+
+   | QUIT    |             | Use to close connection                  |
+   +---------+-------------+------------------------------------------+
+
+                                  Client commands
+
+
+
+
+
+
+
+
+
+Touzet                 Expires April 31, 2017                 [Page 4]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+3.2. Upon connection:
+
+3.2.1. Handshake
+
+3.2.1.1. SYN:
+
+   o Command: SYN
+
+   o Reply:
+
+        o  SYN-ACK
+
+   o Description:
+      >> The client MUST send a SYN command when connecting to the
+      server. Otherwise, the server will refuse connection and close
+      it.
+      NumberA is a randomly generated number.
+      >> The server will reply NumberA + 1 and another random number.
+      If the NumberA returned by the server is not NumberA + 1,
+      connection MUST be closed immediately.
+
+3.2.1.2. ACK
+
+   o Command: ACK
+
+   o Reply:
+
+        o  RPL_OK
+
+   o Description:
+      >> The client MUST send a SYN-ACK when receiving SYN-ACK command
+      from the server.
+      NumberB is a number sent by the server with SYN-ACK command.
+      The server will reply RPL_OK and the client will be authorized to
+      send a GREET or HELLO command.
+
+3.2.1.3. GREET
+
+   o Command: GREET
+
+   o Reply:
+
+        o  RPL_ID
+
+
+
+
+
+
+Touzet                 Expires April 31, 2017                 [Page 5]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+   o Description:
+      The client sends a GREET command when no ID is found in the
+      registry. A Username and a public key generated client-side must
+      be sent.
+      The server should reply with a new ID and a public key which
+      should be stored in client registry along to the client private
+      key.
+      >> Once the server key is received, every following message MUST
+      be cipher.
+
+3.2.1.4. HELLO
+
+   o Command: HELLO
+
+   o Replies:
+
+        o  RPL_ID_OK
+
+        o  ERR_BAD_ID
+
+   o Description:
+      The client sends a HOME command when an ID is found in the
+      registry.
+      The server should reply with a RPL_OK if the ID is correct.
+      If the ID is not correct the server will send a ERR_BAD_ID and
+      wait for a GREET command.
+
+3.3. Log transfer
+
+3.3.1. WORD | BREAK | MPOS | MBTN
+
+   o Command: WORD | BREAK | MPOS | MBTN
+
+   o Replies:
+
+        o  RPL_RECEIVED
+
+        o  ERR_BAD_MSG_FORMAT
+
+        o  ERR_IO_ERROR
+
+   o Description:
+      The client sends a WORD, BREAK, MPOS or MBTN command when it
+      sends the logged data.
+      The title corresponds to the foreground window and content is
+      relative to the type of data transferred.
+
+
+
+Touzet                 Expires April 31, 2017                 [Page 6]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+        o  WORD will log the word typed by the user.
+
+        o  BREAK will log any special or breaking character.
+
+        o  MPOS will log the following format: "x;y" when cursor is
+          inactive for 1-2 second(s) where:
+
+             o x and y stands for an integer position relative to x and
+               y axis.
+
+        o  MBTN will log the following format: "x;y;BTN" where:
+
+             o x and y are position on the axis
+
+             o BTN is the mouse button pressed
+
+      The server should reply with a RPL_RECEIVED. If data format is
+      wrong, the server will send a ERR_BAD_MSG_FORMAT to the client.
+      A ERR_IO_ERROR can be send by the server if the data takes more
+      space than it can store. In that case, the server will close the
+      connection. The client should keep the data stored locally and
+      try connecting again later.
+
+3.4. Other requests:
+
+3.4.1. PING
+
+   o Command: PING
+
+   o Reply:
+
+        o  RPL_PONG
+
+   o Description:
+      >> The client MUST send a ping command from time to time in order
+      to keep connection alive. Otherwise, connection can be closed by
+      the server.
+
+3.4.2. QUIT
+
+   o Command: QUIT
+
+   o Reply:
+
+        o  RPL_QUIT_OK
+
+
+
+
+Touzet                 Expires April 31, 2017                 [Page 7]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+   o Description:
+      The client sends the QUIT command when he wants to disconnect
+      from the server.
+      >> The client SHOULD wait for a RPL_QUIT_OK before closing
+      connection.
+
+4. Server requests:
+
+4.1. Server commands list:
+
+   +---------+--------------+----------------------------------------+
+   | Command | Parameters   | Description                            |
+   +---------+--------------+----------------------------------------+
+   | SYN-ACK | NumberA + 1, | Use for handshake upon connection      |
+   |         | NumberB      |                                        |
+   +---------+--------------+----------------------------------------+
+   | START   | Type         | Use to ask a client start the logging  |
+   |         |              | of a specific data type                |
+   +---------+--------------+----------------------------------------+
+   | STOP    | Type         | Use to ask a client stop the logging   |
+   |         |              | of a specific data type                |
+   +---------+--------------+----------------------------------------+
+   | MSG     | Message      | Use when sending message to the client |
+   +---------+--------------+----------------------------------------+
+   | CLOSE   |              | Use to tell clients the server is      |
+   |         |              | closing the connection                 |
+   +---------+--------------+----------------------------------------+
+
+                                  Server commands
+
+4.2. Upon connection:
+
+4.2.1. SYN-ACK
+
+   o Command: SYN-ACK
+
+   o Description:
+      The server MUST reply to the client with a SYN-ACK when it
+      receives a SYN command.
+      NumberB is a randomly generated number. NumberA is the number
+      received with the SYN command.
+
+4.3. About data logging:
+
+4.3.1. START
+
+   o Command: START
+
+
+Touzet                 Expires April 31, 2017                 [Page 8]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+   o Description:
+      The server can use the START command to tell the client to start
+      logging a specific activity.
+
+4.3.2. STOP
+
+   o Command: STOP
+
+   o Description:
+      The server can use the STOP command to tell the client to stop
+      logging a specific activity.
+
+4.4. Other:
+
+4.4.1. MSG
+
+   o Command: MSG
+
+   o Description:
+      The server can use the MSG command to send information to the
+      client.
+
+4.4.2. CLOSE
+
+   o Command: CLOSE
+
+   o Description:
+      The server will send a CLOSE command to all user in order to tell
+      them to start logging locally.
+
+5. Types:
+
+   +-------+--------------------------+
+   | Type  | Format                   |
+   +-------+--------------------------+
+   | WORD  | "WORD"                   |
+   +-------+--------------------------+
+   | BREAK | "CHAR"                   |
+   +-------+--------------------------+
+   | MPOS  | "x;y"                    |
+   +-------+--------------------------+
+   | MBTN  | "x;y;BTN"                |
+   +-------+--------------------------+
+   | ALL   | /// Every other type \\\ |
+   +-------+--------------------------+
+
+                               Types list with format
+
+
+Touzet                 Expires April 31, 2017                 [Page 9]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+6. Codes:
+
+   +-------+--------------------+------------------------------------+
+   | Code  | Short name         | Description                        |
+   +-------+--------------------+------------------------------------+
+   | 100   | SYN-ACK            | Handshake used by the server upon  |
+   |       |                    | client connection                  |
+   +-------+--------------------+------------------------------------+
+   | 101   | MSG                | Used by the server when sending a  |
+   |       |                    | message to the client              |
+   +-------+--------------------+------------------------------------+
+   | 102   | START              | Used by the server when asking the |
+   |       |                    | client to start specific logging   |
+   |       |                    | tasks                              |
+   +-------+--------------------+------------------------------------+
+   | 103   | STOP               | Used by the server when asking the |
+   |       |                    | client to stop specific logging    |
+   |       |                    | tasks                              |
+   +-------+--------------------+------------------------------------+
+   | 104   | CLOSE              | Used by the server when the server |
+   |       |                    | will close                         |
+   +-------+--------------------+------------------------------------+
+   | ---   | ------------------ |                                    |
+   +-------+--------------------+------------------------------------+
+   | 200   | RPL_ID             | Reply followed by a new ID and a   |
+   |       |                    | key to be stored and use for future|
+   |       |                    | connection and message exchange    |
+   +-------+--------------------+------------------------------------+
+   | 201   | RPL_ID_OK          | Reply to a correct connection ID to|
+   |       |                    | engage data logging                |
+   +-------+--------------------+------------------------------------+
+   | 202   | RPL_RECEIVED       | Reply when a packet containing     |
+   |       |                    | correct data format is received by |
+   |       |                    | the server                         |
+   +-------+--------------------+------------------------------------+
+   | 203   | RPL_OK             | Used to tell last command is OK    |
+   +-------+--------------------+------------------------------------+
+   | 204   | RPL_PONG           | Used when a client send a PING.    |
+   |       |                    | Connection should be keep alive    |
+   +-------+--------------------+------------------------------------+
+   | 205   | RPL_QUIT_OK        | Used when a client send a QUIT     |
+   |       |                    | command                            |
+   +-------+--------------------+------------------------------------+
+   | ---   | ------------------ |                                    |
+   +-------+--------------------+------------------------------------+
+   | 400   | ERR_BAD_ID         | Error reply to a wrong connection  |
+   |       |                    | ID                                 |
+
+
+Touzet                 Expires April 31, 2017                [Page 10]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+   +-------+--------------------+------------------------------------+
+   | 401   | ERR_BAD_MSG_FORMAT | Error reply to a wrong data format |
+   +-------+--------------------+------------------------------------+
+   | ---   | ------------------ |                                    |
+   +-------+--------------------+------------------------------------+
+   | 500   | ERR_IO_ERROR       | Server error reply when IO fails   |
+   |       |                    | followed by connection closing     |
+   +-------+--------------------+------------------------------------+
+
+
+                                    Codes list
+
+7. Security Considerations
+
+   The procedures of this document does not provide an encryption of
+   the data flows that are sent across the network. Hence, these
+   procedures do not by themselves ensure the privacy or integrity of
+   the data against attacks on the network.
+
+8. Acknowledgments
+
+   This document was prepared using 2-Word-v2.0.template.dot.
+
+   Copyright (c) 2016 IETF Trust and the persons identified as authors
+   of the code. All rights reserved.
+
+   Redistribution and use in source and binary forms, with or without
+   modification, are permitted provided that the following conditions
+   are met:
+
+   o Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+
+   o Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in
+      the documentation and/or other materials provided with the
+      distribution.
+
+   o Neither the name of Internet Society, IETF or IETF Trust, nor the
+      names of specific contributors, may be used to endorse or promote
+      products derived from this software without specific prior
+      written permission.
+
+   THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+   "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+   FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+
+
+Touzet                 Expires April 31, 2017                [Page 11]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+   COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+   INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+   BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+   LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+   CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+   LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+   ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   POSSIBILITY OF SUCH DAMAGE.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Touzet                 Expires April 31, 2017                [Page 12]
+
+Internet-Draft             Spider Protocol                October 2016
+
+
+Authors' Addresses
+
+   Kevin Rochon
+   EPITECH Bordeaux
+   85 Rue du Jardin Public
+   33000 Bordeaux
+   France
+
+   Email: kevin.rochon@epitech.eu
+
+
+   Théo Touzet
+   EPITECH Bordeaux
+   85 Rue du Jardin Public
+   33000 Bordeaux
+   France
+
+   Email: theo.touzet@epitech.eu
+
+
+   Axel Vencatareddy
+   EPITECH Bordeaux
+   85 Rue du Jardin Public
+   33000 Bordeaux
+   France
+
+   Email: axel.vencatareddy@epitech.eu
+
+
+   Louis Vezia
+   EPITECH Bordeaux
+   85 Rue du Jardin Public
+   33000 Bordeaux
+   France
+
+   Email: louis.vezia@epitech.eu
+
+
+
+
+
+
+
+
+
+
+
+
+Touzet                 Expires April 31, 2017                [Page 13]
+
