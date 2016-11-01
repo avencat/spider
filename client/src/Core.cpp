@@ -9,3 +9,26 @@
 //
 
 #include "Core.hh"
+
+Core::Core()
+{
+}
+
+Core::~Core()
+{
+}
+
+int	Core::sendData(const std::string &msg)
+{
+	return (0);
+}
+
+int	Core::storeInReg(const std::string &msg)
+{
+	return (0);
+}
+
+int	Core::storeLocally(const std::string &msg)
+{
+	return (0);
+}

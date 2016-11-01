@@ -11,4 +11,23 @@
 #ifndef CORE_HH_
 # define CORE_HH_
 
+#include <iostream>
+#include <fstream>
+
+class Core
+{
+public:
+	Core();
+	~Core();
+	int	sendData(const std::string &);
+	int	storeInReg(const std::string &);
+	int	storeLocally(const std::string &);
+
+private:
+	std::string	msgReceived;
+	std::string	msgToSent;
+	bool		cmdBreak;
+
+};
+
 #endif /* !CORE_HH_ */
