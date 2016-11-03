@@ -14,9 +14,8 @@
 int		main(int ac, char **av)
 {
 	Core core;
-	Keylog keylog;
 
-	keylog.getForeground();
+	core.run();
 	(void)ac;
 	(void)av;
 	return (0);

