@@ -1,0 +1,5 @@
+Compile the test_server with this line :
+ g++ server/test_server.cpp server/src/Client.cpp server/src/ServerNetwork.cpp common/src/Network.cpp -o server_exec -I./server/inc -I./common/inc -I./libs libs/libboost_date_time.a libs/libboost_system.a libs/libboost_regex.a libs/libboost_serialization.a libs/libboost_thread.a -std=c++11 -lpthread -g
+
+Compile the client with this line :
+ g++ server/test.cpp -I./libs libs/libboost_*.a
