@@ -1,14 +1,14 @@
 //
 // Configuration.cpp for Spider server in /home/touzet_t/epitech/cpp/cpp_spider/server
-// 
+//
 // Made by Theo TOUZET
 // Login   <touzet_t@epitech.net>
-// 
+//
 // Started on  Thu Nov  3 19:40:52 2016 Theo TOUZET
-// Last update Thu Nov  3 19:40:53 2016 Theo TOUZET
+// Last update Fri Nov  4 23:54:22 2016 Theo TOUZET
 //
 
-#include "test.hh"
+#include "Configuration.hh"
 
 Configuration::Configuration(const std::string &path, const bool _silent) :
   silent(_silent)
@@ -51,10 +51,8 @@ void		Configuration::readUpdateConfig()
 	}
     }
   file.close();
-  if (config.find("whitelist") != config.end())
-    readUpdateWhitelist();
-  if (config.find("blacklist") != config.end())
-    readUpdateBlacklist();
+  readUpdateWhitelist();
+  readUpdateBlacklist();
 }
 
 void					Configuration::readUpdateWhitelist()
@@ -63,6 +61,8 @@ void					Configuration::readUpdateWhitelist()
   std::string				line;
   std::vector<std::string>::iterator	it;
 
+  if (config.find("whitelist") == config.end())
+    return;
   file.open(config["whitelist"].c_str(), std::ifstream::in);
   if (!file)
     return;
@@ -85,6 +85,8 @@ void					Configuration::readUpdateBlacklist()
   std::string				line;
   std::vector<std::string>::iterator	it;
 
+  if (config.find("blacklist") == config.end())
+    return;
   file.open(config["blacklist"].c_str(), std::ifstream::in);
   if (!file)
     return;
@@ -99,6 +101,34 @@ void					Configuration::readUpdateBlacklist()
 	}
     }
   file.close();
+}
+
+void	Configuration::addToWhitelist(const std::string &ip)
+{
+  if (std::find(whitelist.begin(), whitelist.end(), ip) == whitelist.end())
+    whitelist.push_back(ip);
+}
+
+void	Configuration::addToBlacklist(const std::string &ip)
+{
+  if (std::find(blacklist.begin(), blacklist.end(), ip) == blacklist.end())
+    blacklist.push_back(ip);
+}
+
+void	Configuration::removeFromWhitelist(const std::string &ip)
+{
+  std::vector<std::string>::iterator  it;
+
+  if ((it = std::find(whitelist.begin(), whitelist.end(), ip)) != whitelist.end())
+    whitelist.erase(it);
+}
+
+void	Configuration::removeFromBlacklist(const std::string &ip)
+{
+  std::vector<std::string>::iterator  it;
+
+  if ((it = std::find(blacklist.begin(), blacklist.end(), ip)) != blacklist.end())
+    blacklist.erase(it);
 }
 
 bool	Configuration::getSilent() const
@@ -132,9 +162,9 @@ bool	Configuration::isAuthorizedIP(const std::string &ip, const unsigned short p
 {
   bool	ret = true;
 
-  if (ret && config.find("whitelist") != config.end())
+  if (ret && whitelist.size())
     ret = isAuthorizedWhite(ip, port);
-  if (ret && config.find("blacklist") != config.end())
+  if (ret && blacklist.size())
     ret = isAuthorizedBlack(ip, port);
   return (ret);
 }
@@ -143,7 +173,7 @@ bool		Configuration::isAuthorizedWhite(const std::string &ip, const unsigned sho
 {
   std::string	str(ip);
 
-  if (config.find("whitelist") == config.end())
+  if (whitelist.size())
     return (true);
   else if (std::find(whitelist.begin(), whitelist.end(), ip) !=
 	   whitelist.end())
@@ -162,14 +192,14 @@ bool		Configuration::isAuthorizedWhite(const std::string &ip, const unsigned sho
     }
   else if (!silent)
     std::cout << "WHITE IP: " << ip << " is not authorized." << std::endl;
-  return (false);  
+  return (false);
 }
 
 bool		Configuration::isAuthorizedBlack(const std::string &ip, const unsigned short port) const
 {
   std::string	str(ip);
 
-  if (config.find("blacklist") == config.end())
+  if (blacklist.size())
     return (true);
   else if (std::find(blacklist.begin(), blacklist.end(), ip) !=
 	   blacklist.end())
@@ -188,7 +218,7 @@ bool		Configuration::isAuthorizedBlack(const std::string &ip, const unsigned sho
     }
   else if (!silent)
     std::cout << "BLACK IP: " << ip << " is authorized." << std::endl;
-  return (true);  
+  return (true);
 }
 
 void    Configuration::printConfig()

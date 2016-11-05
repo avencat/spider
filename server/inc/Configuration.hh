@@ -1,9 +1,9 @@
 //
 // Configuration.hh for Spider server in /home/touzet_t/epitech/cpp/cpp_spider/server
-// 
+//
 // Made by Theo TOUZET
 // Login   <touzet_t@epitech.net>
-// 
+//
 // Started on  Thu Nov  3 19:41:48 2016 Theo TOUZET
 // Last update Thu Nov  3 19:41:49 2016 Theo TOUZET
 //
@@ -27,6 +27,10 @@ public:
   void	readUpdateConfig();
   void	readUpdateWhitelist();
   void	readUpdateBlacklist();
+  void	addToWhitelist(const std::string&);
+  void	addToBlacklist(const std::string&);
+  void	removeFromWhitelist(const std::string&);
+  void	removeFromBlacklist(const std::string&);
 
   bool		getSilent() const;
   void		setSilent(const bool);

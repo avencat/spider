@@ -230,6 +230,6 @@ static int callback(void *data, int ac, char **av, char **azColName);
 **Description:**  
 The callback will be used by the SQLite3 itself when needed (during, for example, a SELECT). It will print the contained data on screen.
 
-## 3. Class usage
+## 3. Class requirement
 ### 3.1. Makefile
 Following link flags must be added: `-lsqlite3 -lboost_thread -ldl`
