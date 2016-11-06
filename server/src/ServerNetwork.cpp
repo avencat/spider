@@ -1,6 +1,6 @@
 #include "ServerNetwork.hh"
 
-ServerNetwork::ServerNetwork(const std::string &ip, const unsigned short &port) : Network(ip, port), acceptor(ioservice, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+ServerNetwork::ServerNetwork(const std::string &ip, const unsigned short &port) : ANetwork(), acceptor(ioservice, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
 {
 
 }
@@ -25,6 +25,14 @@ void ServerNetwork::readForEachClient()
   for (std::vector<Client*>::iterator client = clients.begin(); client != clients.end(); client++) {
     if ((*client.base())->getSocket().available() > 0)
       (*client.base())->receive();
+  }
+}
+
+void ServerNetwork::writeForEachClient(const std::string &str)
+{
+  for (std::vector<Client*>::iterator client = clients.begin(); client != clients.end(); client++) {
+    if ((*client.base())->getSocket().is_open())
+      (*client.base())->send(str);
   }
 }
 
@@ -60,4 +68,14 @@ void ServerNetwork::stopService()
   isEnding = true;
   this->ioservice.stop();
   thread.join();
+}
+
+void ServerNetwork::read()
+{
+  readForEachClient();
+}
+
+void ServerNetwork::write(const std::string &str)
+{
+  writeForEachClient(str);
 }
