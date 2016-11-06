@@ -14,7 +14,11 @@
 int		main(int ac, char **av)
 {
 	Core core;
-
+#if _WIN32
+	//fopen_s(&Keylog::myKeylogfile, "MyFileKey", "a+");
+#else
+	//myKeylogfile = fopen("MyFileKey", "a+");
+#endif
 	core.run();
 	(void)ac;
 	(void)av;

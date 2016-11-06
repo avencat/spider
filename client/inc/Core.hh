@@ -33,12 +33,6 @@ private:
 
 	Keylog keylog;
 
-	// Read Console Input
-	HANDLE	hIn;
-	HANDLE	hOut;
-	INPUT_RECORD InRec;
-	DWORD NumRead;
-
 };
 
 #endif /* !CORE_HH_ */
