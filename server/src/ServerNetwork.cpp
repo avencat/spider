@@ -28,7 +28,7 @@ void ServerNetwork::readForEachClient()
   }
 }
 
-void ServerNetwork::writeForEachClient(const std::string &str)
+void ServerNetwork::writeForEachClient(const void *str)
 {
   for (std::vector<Client*>::iterator client = clients.begin(); client != clients.end(); client++) {
     if ((*client.base())->getSocket().is_open())
@@ -75,7 +75,7 @@ void ServerNetwork::read()
   readForEachClient();
 }
 
-void ServerNetwork::write(const std::string &str)
+void ServerNetwork::write(const void *str)
 {
   writeForEachClient(str);
 }

@@ -8,20 +8,19 @@
 # include <boost/bind.hpp>
 # include <boost/array.hpp>
 # include <iostream>
+# include "Protocol.h"
 
 class Client {
 private:
   // Methods
-  void          handle_write(const boost::system::error_code &, const size_t &, std::string &);
-  void          handle_read(const boost::system::error_code &);
+  void          handle_write(const boost::system::error_code &, const size_t &, const void *);
   void          close();
 
   // Attributes
-  std::queue<std::string>      queue;
+  std::queue<void *>           queue;
   int                          id;
   boost::asio::ip::tcp::socket socket;
-  boost::asio::deadline_timer  timer;
-  boost::array<char, 128>      read_buffer;
+  boost::array<char, 792>      read_buffer;
   bool                         isAlive;
 
 public:
@@ -33,8 +32,8 @@ public:
   void                          setId(const int &);
   const int                     &getId() const;
   void                          receive();
-  void                          send(const std::string &);
-  const std::queue<std::string> &getQueue() const;
+  void                          send(const void *);
+  const std::queue<void *>      &getQueue() const;
   void                          popFromQueue();
 };
 

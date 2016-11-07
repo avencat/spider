@@ -25,9 +25,9 @@ public:
   void                           startAccept();
   virtual void                   stopService();
   virtual void                   read();
-  virtual void                   write(const std::string &);
+  virtual void                   write(const void *);
   void                           readForEachClient();
-  void                           writeForEachClient(const std::string &);
+  void                           writeForEachClient(const void *);
   // MUST BE CALL BEFORE USING ANY OF THIS OBJECT DATA
   void                           useData();
   // MUST BE CALL AFTER USING ANY OF THIS OBJECT DATA

@@ -26,7 +26,7 @@ public:
   // Methods
   virtual void stopService() = 0;
   virtual void read() = 0;
-  virtual void write(const std::string &) = 0;
+  virtual void write(const void *) = 0;
 };
 
 #endif /* !ANETWORK_HH_ */
