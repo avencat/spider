@@ -13,7 +13,7 @@
 class Client {
 private:
   // Methods
-  void          handle_write(const boost::system::error_code &, const size_t &, const void *);
+  void          handle_write(const boost::system::error_code &, const size_t &);
   void          close();
 
   // Attributes

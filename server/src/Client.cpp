@@ -48,17 +48,11 @@ void Client::send(const void *to_send)
                            static_cast<char *>(const_cast<void *>(to_send)))),
                            boost::bind(&Client::handle_write,
                            this, boost::asio::placeholders::error,
-                           boost::asio::placeholders::bytes_transferred,
-                           to_send));
-  // socket.async_send(to_send,
-  //                   boost::bind(&Client::handle_write, this,
-  //                   boost::asio::placeholders::error,
-  //                   boost::asio::placeholders::bytes_transferred,
-  //                   to_send));
+                           boost::asio::placeholders::bytes_transferred));
 }
 
 void Client::handle_write(const boost::system::error_code& error,
-                          const size_t &bytes_transferred, const void *to_send)
+                          const size_t &bytes_transferred)
 {
   if (error) {
     std::cerr << "Error: " << error.message() << std::endl <<
