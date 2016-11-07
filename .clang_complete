@@ -1,3 +1,4 @@
 -I./libs/
 -I./common/inc/
 -I./server/inc/
+-I./client/inc/

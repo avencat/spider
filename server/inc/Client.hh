@@ -4,7 +4,6 @@
 # include <queue>
 # include <string>
 # include <boost/asio.hpp>
-# include <boost/enable_shared_from_this.hpp>
 # include <boost/bind.hpp>
 # include <boost/array.hpp>
 # include <iostream>
@@ -28,13 +27,13 @@ public:
   virtual ~Client();
 
   // Methods
-  boost::asio::ip::tcp::socket  &getSocket();
-  void                          setId(const int &);
-  const int                     &getId() const;
-  void                          receive();
-  void                          send(const void *);
-  const std::queue<void *>      &getQueue() const;
-  void                          popFromQueue();
+  boost::asio::ip::tcp::socket &getSocket();
+  void                         setId(const int &);
+  const int                    &getId() const;
+  void                         receive();
+  void                         send(const void *);
+  const std::queue<void *>     &getQueue() const;
+  void                         popFromQueue();
 };
 
 #endif /* !CLIENT_HH_ */
