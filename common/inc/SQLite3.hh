@@ -5,7 +5,7 @@
 // Login   <touzet_t@epitech.net>
 // 
 // Started on  Wed Nov  2 14:44:52 2016 Theo TOUZET
-// Last update Wed Nov  2 14:44:53 2016 Theo TOUZET
+// Last update Mon Nov  7 14:21:17 2016 Theo TOUZET
 //
 
 #ifndef SQLITE3_HH_
@@ -22,16 +22,20 @@ public:
   SQLite3(const std::string&, const bool = false);
   ~SQLite3();
 
-  int		getRc() const;
-  std::string	getSql() const;
-  std::string	getMessage() const;
-  bool		getPrintRequest() const;
-  bool		getPrintMessage() const;
-  void		setPrintRequest(const bool);
-  void		setPrintMessage(const bool);
+  int				getRc() const;
+  std::string			getSql() const;
+  std::string			getMessage() const;
+  bool				getPrintRequest() const;
+  bool				getPrintMessage() const;
+  std::vector<std::string>	&getColList() const;
+  std::vector<std::string>	&getValList() const;
+  void				resetLists();
+  void				setPrintRequest(const bool);
+  void				setPrintMessage(const bool);
 
   int		createTable(const std::string&,
 			    const std::vector<std::string>&);
+  int		dropTable(const std::string&);
   int		insert(const std::string&,
 		       const std::vector<std::string>&,
 		       const std::vector<std::string>&);
@@ -40,6 +44,7 @@ public:
   int		update(const std::string&, const std::string&,
   		       const std::string&, const std::string&);
   int		deleteSQL(const std::string&, const std::string&);
+
   static int	callback(void*, int, char**, char**);
 
 private:
@@ -48,10 +53,13 @@ private:
   sqlite3	*db;
   int		rc;
   char		*zErrMsg;
-  std::string   sql;
+  std::string	sql;
   std::string	message;
   bool		printMessage;
   bool		printRequest;
+
+  static std::vector<std::string>	colList;
+  static std::vector<std::string>	valList;
 };
 
 #endif /* !SQLITE3_HH_ */

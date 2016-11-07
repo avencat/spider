@@ -5,10 +5,13 @@
 // Login   <touzet_t@epitech.net>
 // 
 // Started on  Wed Nov  2 14:42:59 2016 Theo TOUZET
-// Last update Wed Nov  2 14:43:42 2016 Theo TOUZET
+// Last update Mon Nov  7 14:30:52 2016 Theo TOUZET
 //
 
 #include "SQLite3.hh"
+
+std::vector<std::string>	SQLite3::colList({});
+std::vector<std::string>	SQLite3::valList({});
 
 SQLite3::SQLite3(const std::string &name, const bool silent) :
   printMessage(false), printRequest(false)
@@ -53,6 +56,22 @@ bool	SQLite3::getPrintMessage() const
   return (printMessage);
 }
 
+std::vector<std::string>	&SQLite3::getColList() const
+{
+  return (colList);
+}
+
+std::vector<std::string>	&SQLite3::getValList() const
+{
+  return (valList);
+}
+
+void    SQLite3::resetLists()
+{
+  colList.clear();
+  valList.clear();
+}
+
 void	SQLite3::setPrintRequest(const bool pr)
 {
   printRequest = pr;
@@ -81,28 +100,35 @@ int		SQLite3::createTable(const std::string &name,
   return (this->execQuery());
 }
 
+int		SQLite3::dropTable(const std::string &name)
+{
+  sql = "DROP TABLE " + name + ";";
+  message = "Table " + name + " deleted successfully";
+  return (this->execQuery());
+}
+
 int		SQLite3::insert(const std::string &name,
 				const std::vector<std::string> &columns,
 				const std::vector<std::string> &values)
 {
   sql = "INSERT INTO ";
-  sql.append(name + "(");
+  sql.append(name + "(\'");
   for (std::vector<std::string>::const_iterator it = columns.begin();
        it != columns.end(); ++it)
     {
       if (it != columns.begin())
-	sql.append(",");
+	sql.append("\',\'");
       sql.append(*it);
     }
-  sql.append(") VALUES(");
+  sql.append("\') VALUES(\'");
   for (std::vector<std::string>::const_iterator it = values.begin();
        it != values.end(); ++it)
     {
       if (it != values.begin())
-	sql.append(",");
+	sql.append("\',\'");
       sql.append(*it);
     }
-  sql.append(");");
+  sql.append("\');");
   message = "Records created successfully";
   return (this->execQuery());
 }
@@ -147,11 +173,11 @@ int		SQLite3::callback(void *data, int ac, char **av,
 {
   std::string	str(static_cast<char*>(data));
 
-  std::cerr << str << ":" << std::endl;
   for (int i = 0; i < ac; ++i)
-    std::cout << azColName[i] << " = " <<
-      (av[i] ? av[i] : "NULL") << std::endl;
-  std::cout << std::endl;
+    {
+      colList.push_back(azColName[i]);
+      valList.push_back((av[i] ? av[i] : "NULL"));
+    }
   return (0);
 }
 
