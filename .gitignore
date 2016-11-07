@@ -1,0 +1,6 @@
+# Ignoring db files
+*.db
+
+# Ignoring temporary files
+*~
+\#*\#
