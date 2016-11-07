@@ -18,7 +18,7 @@ private:
   void                           accept();
   void                           handleAccept(Client *new_client);
 public:
-  ServerNetwork(const std::string &ip, const unsigned short &port);
+  ServerNetwork(const unsigned short &port);
   virtual ~ServerNetwork();
 
   // Methods

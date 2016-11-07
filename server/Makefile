@@ -5,7 +5,7 @@
 ## Login   <touzet_t@epitech.net>
 ## 
 ## Started on  Mon Nov  7 05:48:47 2016 Theo TOUZET
-## Last update Mon Nov  7 06:11:47 2016 Theo TOUZET
+## Last update Mon Nov  7 10:29:04 2016 Theo TOUZET
 ##
 
 NAME =	server
@@ -14,7 +14,8 @@ COMSRCSPATH =	../common/src
 
 COMINCSPATH =	../common/inc
 
-COMMONSRCS =	$(COMSRCSPATH)/SQLite3.cpp
+COMMONSRCS =	$(COMSRCSPATH)/SQLite3.cpp \
+		$(COMSRCSPATH)/ANetwork.cpp
 
 SRVSRCSPATH =	src
 
@@ -23,6 +24,8 @@ SRVINCPATH =	./inc/
 SRCS =	$(COMMONSRCS) \
 	$(SRVSRCSPATH)/Core.cpp \
 	$(SRVSRCSPATH)/Configuration.cpp \
+	$(SRVSRCSPATH)/ServerNetwork.cpp \
+	$(SRVSRCSPATH)/Client.cpp \
 	$(SRVSRCSPATH)/server.cpp
 
 OBJS= $(SRCS:.cpp=.o)
@@ -35,7 +38,7 @@ CXX= g++
 
 CXXFLAGS= -std=c++11 -W -Wall -Wextra -Werror $(INCPATH)
 
-LDFLAGS= -L$(LIBPATH) -lsqlite3 -lboost_thread -ldl
+LDFLAGS= -L$(LIBPATH) -lsqlite3 -lboost_thread -ldl -lboost_system-mt -lboost_regex -lboost_serialization -lboost_date_time
 
 $(NAME): $(OBJS)
 	$(CXX) -o $(NAME) $(OBJS) $(LDFLAGS)

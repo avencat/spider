@@ -1,6 +1,6 @@
 #include "ServerNetwork.hh"
 
-ServerNetwork::ServerNetwork(const std::string &ip, const unsigned short &port) : ANetwork(), acceptor(ioservice, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+ServerNetwork::ServerNetwork(const unsigned short &port) : ANetwork(), acceptor(ioservice, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
 {
 
 }

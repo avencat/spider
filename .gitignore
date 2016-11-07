@@ -4,3 +4,6 @@
 # Ignoring temporary files
 *~
 \#*\#
+
+# Ignoring compilation files
+*.o
