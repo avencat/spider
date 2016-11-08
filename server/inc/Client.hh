@@ -14,7 +14,6 @@ private:
   // Methods
   void                          handle_write(const boost::system::error_code &, const size_t &, std::string &);
   void                          handleRead(const boost::system::error_code &);
-  void                          close();
 
   // Attributes
   boost::asio::streambuf        buffer;
@@ -38,6 +37,7 @@ public:
   void                          send(const std::string &);
   const std::queue<std::string> &getQueue() const;
   void                          popFromQueue();
+  void                          close();
 
   enum states
   {
