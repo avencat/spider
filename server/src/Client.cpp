@@ -47,18 +47,17 @@ boost::asio::ip::tcp::socket &Client::getSocket()
 
 void Client::receive()
 {
-  if (socket.available() <= 0)
+  if (!socket.is_open() || socket.available() <= 0)
     return ;
-  boost::asio::streambuf buffer;
-  boost::asio::read_until(socket, buffer, "\r\n");
-  std::istream is(&buffer);
-  std::string str;
-  std::getline(is, str);
-  queue.push(str);
+  boost::asio::async_read_until(socket, buffer, "\r\n",
+                                boost::bind(&Client::handleRead, this,
+                                boost::asio::placeholders::error));
 }
 
 void Client::send(const std::string &to_send)
 {
+  if (!socket.is_open())
+    return ;
   boost::asio::async_write(socket, boost::asio::buffer(std::string(to_send)),
                            boost::bind(&Client::handle_write,
                            this, boost::asio::placeholders::error,
@@ -66,7 +65,20 @@ void Client::send(const std::string &to_send)
                            to_send));
 }
 
-void Client::handle_write(const boost::system::error_code& error,
+void Client::handleRead(const boost::system::error_code &error)
+{
+  if (!error) {
+    std::istream is(&buffer);
+    std::string str;
+    std::getline(is, str);
+    queue.push(str);
+  } else {
+    isAlive = false;
+    close();
+  }
+}
+
+void Client::handle_write(const boost::system::error_code &error,
                           const size_t &bytes_transferred, std::string &to_send)
 {
   if (error) {

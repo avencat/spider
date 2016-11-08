@@ -13,9 +13,11 @@ class Client {
 private:
   // Methods
   void                          handle_write(const boost::system::error_code &, const size_t &, std::string &);
+  void                          handleRead(const boost::system::error_code &);
   void                          close();
 
   // Attributes
+  boost::asio::streambuf        buffer;
   char                          state;
   std::queue<std::string>       queue;
   int                           id;
@@ -36,6 +38,14 @@ public:
   void                          send(const std::string &);
   const std::queue<std::string> &getQueue() const;
   void                          popFromQueue();
+
+  enum states
+  {
+    NEW,
+    SYN,
+    ACK,
+    OK
+  };
 };
 
 #endif /* !CLIENT_HH_ */
