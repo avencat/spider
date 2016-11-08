@@ -49,7 +49,7 @@ void Client::receive()
 {
   if (!socket.is_open() || socket.available() <= 0)
     return ;
-  boost::asio::async_read_until(socket, buffer, "\r\n",
+  boost::asio::async_read_until(socket, buffer, DELIM,
                                 boost::bind(&Client::handleRead, this,
                                 boost::asio::placeholders::error));
 }

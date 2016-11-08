@@ -9,6 +9,8 @@
 # include <iostream>
 # include "Protocol.h"
 
+# define DELIM "\n"
+
 class Client {
 private:
   // Methods
