@@ -5,16 +5,18 @@
 // Login   <touzet_t@epitech.net>
 // 
 // Started on  Tue Nov  1 13:49:07 2016 Theo TOUZET
-// Last update Mon Nov  7 11:41:36 2016 Theo TOUZET
+// Last update Tue Nov  8 11:50:30 2016 Theo TOUZET
 //
 
 #ifndef CORE_HH_
 # define CORE_HH_
 
 # include <iostream>
+# include <sstream>
 # include <string>
 # include <vector>
 # include "Configuration.hh"
+# include "Protocol.h"
 # include "ServerNetwork.hh"
 # include "SQLite3.hh"
 
@@ -22,11 +24,6 @@
 # define TABLE_KEYS	"Keys"
 # define TABLE_LIST	"List"
 # define TABLE_USER	"Usr_"
-
-// Error levels
-# define NONE_CORE	0
-# define WARNING_CORE	1
-# define CRITICAL_CORE	2
 
 class	Core
 {
@@ -39,6 +36,7 @@ public:
   void	createPrivateTable();
   void	createListTable();
   int	newUserDB(const std::string&, const std::string&);
+  int	handshake(Client&);
   int	run();
 
 private:
@@ -47,6 +45,13 @@ private:
   ServerNetwork		server;
   int			error_level;
   std::vector<Client*>	clients;
+
+  enum	errorLevels
+    {
+      NONE_CORE = 0,
+      WARNING_CORE,
+      CRITICAL_CORE
+    };
 };
 
 #endif /* !CORE_HH_ */

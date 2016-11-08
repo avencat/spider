@@ -54,6 +54,7 @@ void ServerNetwork::accept()
 void ServerNetwork::handleAccept(Client *new_connection)
 {
   mtx.lock();
+  new_connection->setState(Client::states::NEW);
   clients.push_back(new_connection);
   mtx.unlock();
 }
