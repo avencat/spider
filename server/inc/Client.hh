@@ -12,7 +12,7 @@
 # include <condition_variable>
 # include "Protocol.h"
 
-# define DELIM "\n"
+# define DELIM "\r\n"
 
 class Client {
 private:

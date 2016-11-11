@@ -8,7 +8,12 @@ ServerNetwork::ServerNetwork(const unsigned short &port, std::condition_variable
 
 ServerNetwork::~ServerNetwork()
 {
-
+  ioservice.stop();
+  thread.detach();
+  for (std::vector<Client *>::iterator it = clients.begin(); it < clients.end(); it++) {
+    (*it)->close();
+  }
+  cleanClients();
 }
 
 void ServerNetwork::readForEachClient(std::mutex &mtx)
