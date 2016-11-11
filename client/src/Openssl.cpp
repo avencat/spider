@@ -28,15 +28,44 @@ int	Openssl::generateKey()
 	int			keylen;
 	char		*pem_key;
 
-	this->PrivateKey = RSA_generate_key(kBits, kExp, 0, 0);
-	BIO	*bio = BIO_new(BIO_s_mem());
+	if ((this->rsa = RSA_generate_key(kBits, kExp, 0, 0)) == NULL)
+	{
+		std::cout << "Failed to generate rsa" << std::endl;
+		return (-1);
+	}
+	BIO		*bio;
+	if ((bio = BIO_new(BIO_s_mem())) == NULL)
+	{
+		std::cout << "Failed to generate bio" << std::endl;
+		return (-1);
+	}
 
-	PEM_write_bio_RSAPrivateKey(bio, this->PrivateKey, NULL, NULL, 0, NULL, NULL);
+	//get the private key
+	PEM_write_bio_RSAPrivateKey(bio, this->rsa, NULL, NULL, 0, NULL, NULL);
 	keylen = BIO_pending(bio);
-	pem_key = reinterpret_cast<char *>(calloc(keylen + 1, 1));
+	if ((pem_key = reinterpret_cast<char *>(calloc(keylen + 1, 1))) == NULL)
+	{
+		std::cout << "Calloc failed" << std::endl;
+		return (-1);
+	}
 	BIO_read(bio, pem_key, keylen);
 
-	this->save_key = pem_key;
+	this->PrivateKey = pem_key;
+
+	//get the public key
+	PEM_write_bio_RSAPublicKey(bio, this->rsa);
+	keylen = BIO_pending(bio);
+	if ((pem_key = reinterpret_cast<char *>(calloc(keylen + 1, 1))) == NULL)
+	{
+		std::cout << "Calloc failed" << std::endl;
+		return (-1);
+	}
+	BIO_read(bio, pem_key, keylen);
+
+	this->PublicKey = pem_key;
+
+	BIO_free_all(bio);
+	free(pem_key);
 
 	return 0;
 }
@@ -51,9 +80,14 @@ std::string Openssl::unCipher(std::string Data, RSA *PrivateKey)
 	return (Data);
 }
 
-std::string	Openssl::getSave_key()
+std::string	Openssl::getPrivateKey()
 {
-	return (this->save_key);
+	return (this->PrivateKey);
+}
+
+std::string	Openssl::getPublicKey()
+{
+	return (this->PublicKey);
 }
 
 int main()
@@ -61,6 +95,6 @@ int main()
 	Openssl	op;
 
 	op.generateKey();
-	std::cout << op.getSave_key();
+	std::cout << op.getPublicKey();
 	return 0;
 }

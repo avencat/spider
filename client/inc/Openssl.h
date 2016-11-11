@@ -20,16 +20,17 @@
 class Openssl
 {
 private:
-	RSA *PrivateKey;
-	RSA *PublicKey;
-	std::string	save_key;
+	RSA *rsa;
+	std::string	PrivateKey;
+	std::string	PublicKey;
 public:
 	Openssl();
 	~Openssl();
 	int	generateKey();
 	std::string cipher(std::string Data, RSA *PublicKey);
 	std::string unCipher(std::string Data, RSA *PrivateKey);
-	std::string	getSave_key();
+	std::string	getPrivateKey();
+	std::string	getPublicKey();
 };
 
 #endif /* !OPENSSL_H_ */
