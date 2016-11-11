@@ -26,10 +26,15 @@ bool ClientNetwork::connect(const std::string &ip, const unsigned short &port)
 void ClientNetwork::read(std::mutex &mtx)
 {
   (void)mtx;
+  receive();
+}
+
+void ClientNetwork::receive()
+{
   if (!isEnding && socket.available() > 0) {
     read_buffer.assign(0);
     socket.receive(boost::asio::buffer(read_buffer));
-    queue.push(static_cast<void *>(read_buffer.c_array()));
+    queue.push(read_buffer.c_array());
   }
 }
 

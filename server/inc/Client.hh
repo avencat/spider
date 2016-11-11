@@ -14,8 +14,6 @@
 
 # define DELIM "\r\n"
 
-extern std::mutex mtx;
-
 class Client {
 private:
   // Methods
@@ -42,8 +40,8 @@ public:
   const char                    &getState() const;
   void                          setId(const int &);
   const int                     &getId() const;
-  void                          receive(/*std::mutex &mtx*/);
-  void                          do_receive(/*std::mutex &mtx*/);
+  void                          receive(std::mutex &mtx);
+  void                          do_receive(std::mutex &mtx);
   void                          send(const std::string &);
   const std::queue<std::string> &getQueue() const;
   void                          popFromQueue();

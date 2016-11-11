@@ -153,11 +153,8 @@ int	Core::run()
   try
     {
       std::cout << "Starting server" << std::endl;
-      server.startAccept();
+      server.startAccept(mtx);
       std::cout << "Server start" << std::endl;
-      // Attention, ça pète ici parce que error_level est à CRITICAL_ERROR quand il n'y a pas de database !!!
-      // Décommenter la prochaine ligne pour que ça fonctionne au début
-      // error_level = 0;
     std::unique_lock<std::mutex> lock(mtx);
     lock.unlock();
       while (error_level != CRITICAL_CORE)
@@ -166,7 +163,7 @@ int	Core::run()
     server.cleanClients();
 	  clients = server.getClients();
     lock.unlock();
-    server.readForEachClient();
+    server.readForEachClient(mtx);
     lock.lock();
     cv.wait(lock);
 	  for (std::vector<Client*>::iterator client = clients.begin(); client != clients.end(); ++client)

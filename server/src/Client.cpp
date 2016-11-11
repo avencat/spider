@@ -1,7 +1,5 @@
 #include "Client.hh"
 
-std::mutex mtx;
-
 Client::Client(boost::asio::io_service &ioservice, std::condition_variable &cv) : socket(ioservice), cv(cv)
 {
   isAlive = true;
@@ -49,17 +47,17 @@ boost::asio::ip::tcp::socket &Client::getSocket()
   return socket;
 }
 
-void Client::receive(/*std::mutex &mtx*/)
+void Client::receive(std::mutex &mtx)
 {
   if (isReading)
     return ;
   isReading = true;
   if (thread.joinable())
     thread.join();
-  thread = std::thread([&]{Client::do_receive();});
+  thread = std::thread([&]{Client::do_receive(mtx);});
 }
 
-void Client::do_receive(/*std::mutex &mtx*/)
+void Client::do_receive(std::mutex &mtx)
 {
   std::unique_lock<std::mutex> lock(mtx);
   if (!socket.is_open())
