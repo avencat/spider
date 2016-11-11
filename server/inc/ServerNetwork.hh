@@ -29,6 +29,7 @@ public:
   void                           readForEachClient(std::mutex &mtx);
   void                           writeForEachClient(const std::string &);
   const std::vector<Client*>     getClients() const;
+  const Client                   *getClientById(const int &id) const;
   void                           cleanClients();
   void                           run();
 };

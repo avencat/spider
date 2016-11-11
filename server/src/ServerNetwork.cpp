@@ -64,6 +64,15 @@ const std::vector<Client*> ServerNetwork::getClients() const
   return (clients);
 }
 
+const Client               *ServerNetwork::getClientById(const int &id) const
+{
+  for (std::vector<Client *>::const_iterator it = clients.begin(); it != clients.end(); it++) {
+    if ((*it)->getId() == id)
+      return (*it);
+  }
+  return (NULL);
+}
+
 void ServerNetwork::stopService()
 {
   isEnding = true;
