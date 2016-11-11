@@ -1,13 +1,15 @@
 #include "Client.hh"
 
-Client::Client(boost::asio::io_service &ioservice) : socket(ioservice)
+Client::Client(boost::asio::io_service &ioservice, std::condition_variable &cv) : socket(ioservice), cv(cv)
 {
   isAlive = true;
+  isReading = false;
+  state = Client::states::NEW;
 }
 
 Client::~Client()
 {
-
+  thread.detach();
 }
 
 void Client::setState(const char &state)
@@ -45,37 +47,45 @@ boost::asio::ip::tcp::socket &Client::getSocket()
   return socket;
 }
 
-void Client::receive()
+void Client::receive(std::mutex &mtx)
 {
-  if (!socket.is_open() || socket.available() <= 0)
+  if (isReading)
     return ;
-  boost::asio::async_read_until(socket, buffer, DELIM,
-                                boost::bind(&Client::handleRead, this,
-                                boost::asio::placeholders::error));
+  isReading = true;
+  thread = std::thread([&]{Client::do_receive(mtx);});
+}
+
+void Client::do_receive(std::mutex &mtx)
+{
+  if (!socket.is_open())
+    return ;
+  try {
+    boost::asio::read_until(socket, buffer, DELIM);
+    std::lock_guard<std::mutex> lock(mtx);
+    std::istream is(&buffer);
+    std::string str;
+    std::getline(is, str);
+    std::cout << "str = " << str << std::endl;
+    queue.push(str);
+    isReading = false;
+    cv.notify_one();
+  } catch (const std::exception &error) {
+    std::cerr << "Exception: " << error.what() << std::endl;
+    isAlive = false;
+    close();
+    isReading = false;
+  }
 }
 
 void Client::send(const std::string &to_send)
 {
   if (!socket.is_open())
     return ;
-  boost::asio::async_write(socket, boost::asio::buffer(std::string(to_send)),
+  boost::asio::async_write(socket, boost::asio::buffer(to_send),
                            boost::bind(&Client::handle_write,
                            this, boost::asio::placeholders::error,
                            boost::asio::placeholders::bytes_transferred,
                            to_send));
-}
-
-void Client::handleRead(const boost::system::error_code &error)
-{
-  if (!error) {
-    std::istream is(&buffer);
-    std::string str;
-    std::getline(is, str);
-    queue.push(str);
-  } else {
-    isAlive = false;
-    close();
-  }
 }
 
 void Client::handle_write(const boost::system::error_code &error,
@@ -96,7 +106,30 @@ void Client::handle_write(const boost::system::error_code &error,
 void Client::close()
 {
   if (socket.is_open()) {
+    socket.cancel();
     socket.close();
   }
   isAlive = false;
+}
+
+bool Client::available() const
+{
+  if (socket.is_open() && socket.available() > 0) {
+    return (true);
+  } else {
+    return (false);
+  }
+}
+
+bool Client::isOpen() const
+{
+  available();
+  return (socket.is_open());
+}
+
+bool Client::is_alive() const
+{
+  if (!isAlive || !isOpen())
+    return (false);
+  return (true);
 }

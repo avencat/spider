@@ -13,6 +13,7 @@
 
 # include <boost/asio.hpp>
 # include <iostream>
+# include <mutex>
 
 class ANetwork {
 protected:
@@ -25,7 +26,7 @@ public:
 
   // Methods
   virtual void stopService() = 0;
-  virtual void read() = 0;
+  virtual void read(std::mutex &) = 0;
   virtual void write(const std::string &) = 0;
 };
 

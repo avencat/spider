@@ -16,8 +16,8 @@ public:
   ClientNetwork();
   virtual ~ClientNetwork();
 
-  virtual void read();
-  virtual void write(const void *);
+  virtual void read(std::mutex &);
+  virtual void write(const std::string &);
   virtual void stopService();
   bool         connect(const std::string &ip, const unsigned short &port);
   void         handle_write(const boost::system::error_code& error, const size_t &bytes_transferred);

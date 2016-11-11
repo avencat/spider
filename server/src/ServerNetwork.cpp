@@ -1,6 +1,7 @@
 #include "ServerNetwork.hh"
 
-ServerNetwork::ServerNetwork(const unsigned short &port) : ANetwork(), acceptor(ioservice, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port))
+ServerNetwork::ServerNetwork(const unsigned short &port, std::condition_variable &cv)
+                            : ANetwork(), acceptor(ioservice, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), port)), cv(cv)
 {
 
 }
@@ -10,53 +11,43 @@ ServerNetwork::~ServerNetwork()
 
 }
 
-void ServerNetwork::useData()
-{
-  mtx.lock();
-}
-
-void ServerNetwork::releaseData()
-{
-  mtx.unlock();
-}
-
-void ServerNetwork::readForEachClient()
+void ServerNetwork::readForEachClient(std::mutex &mtx)
 {
   for (std::vector<Client*>::iterator client = clients.begin(); client != clients.end(); client++) {
-    if ((*client.base())->getSocket().available() > 0)
-      (*client.base())->receive();
+    (*client)->receive(mtx);
   }
 }
 
 void ServerNetwork::writeForEachClient(const std::string &str)
 {
   for (std::vector<Client*>::iterator client = clients.begin(); client != clients.end(); client++) {
-    if ((*client.base())->getSocket().is_open())
-      (*client.base())->send(str);
+    if ((*client)->isOpen())
+      (*client)->send(str);
   }
 }
 
-void ServerNetwork::startAccept()
+void ServerNetwork::startAccept(std::mutex &mtx)
 {
-  thread = std::thread(&ServerNetwork::accept, this);
+  thread = std::thread([&]{ServerNetwork::accept(mtx);});
 }
 
-void ServerNetwork::accept()
+void ServerNetwork::accept(std::mutex &mtx)
 {
   while (isEnding == false) {
-    Client *new_connection = new Client(acceptor.get_io_service());
+    Client *new_connection = new Client(acceptor.get_io_service(), cv);
 
     acceptor.accept(new_connection->getSocket());
-    std::async(std::launch::async, &ServerNetwork::handleAccept, this, new_connection);
+    std::async(std::launch::async, [&]{ServerNetwork::handleAccept(new_connection, mtx);});
   }
 }
 
-void ServerNetwork::handleAccept(Client *new_connection)
+void ServerNetwork::handleAccept(Client *new_connection, std::mutex &mtx)
 {
-  mtx.lock();
+  std::unique_lock<std::mutex> lock(mtx);
   new_connection->setState(Client::states::NEW);
   clients.push_back(new_connection);
-  mtx.unlock();
+  cv.notify_one();
+  lock.unlock();
 }
 
 const std::vector<Client*> ServerNetwork::getClients() const
@@ -71,12 +62,29 @@ void ServerNetwork::stopService()
   thread.join();
 }
 
-void ServerNetwork::read()
+void ServerNetwork::read(std::mutex &mtx)
 {
-  readForEachClient();
+  readForEachClient(mtx);
 }
 
 void ServerNetwork::write(const std::string &str)
 {
   writeForEachClient(str);
+}
+
+void ServerNetwork::run()
+{
+  ioservice.run();
+}
+
+void ServerNetwork::cleanClients()
+{
+  for (std::vector<Client*>::iterator client = clients.begin(); client != clients.end(); ) {
+    if (!(*client)->is_alive()) {
+      delete *client;
+      client = clients.erase(client);
+    } else {
+      client++;
+    }
+  }
 }

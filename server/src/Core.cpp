@@ -1,9 +1,9 @@
 //
 // Core.cpp for Spider server in /home/touzet_t/epitech/cpp/cpp_spider/server/src
-// 
+//
 // Made by Theo TOUZET
 // Login   <touzet_t@epitech.net>
-// 
+//
 // Started on  Tue Nov  1 13:48:39 2016 Theo TOUZET
 // Last update Tue Nov  8 12:00:15 2016 Theo TOUZET
 //
@@ -11,7 +11,7 @@
 #include "Core.hh"
 
 Core::Core(const std::string &config) :
-  cfg(config), db(cfg.getConfigKey("database"), true), server(static_cast<unsigned short>(std::stoul(cfg.getConfigKey("port")))), error_level(NONE_CORE)
+  cfg(config), db(cfg.getConfigKey("database"), true), server(static_cast<unsigned short>(std::stoul(cfg.getConfigKey("port"))), cv), error_level(NONE_CORE)
 {
   std::vector<std::string>	cols;
 
@@ -24,6 +24,7 @@ Core::Core(const std::string &config) :
 
 Core::~Core()
 {
+
 }
 
 void				Core::createPrivateTable()
@@ -112,7 +113,6 @@ int			Core::handshake(Client &client)
   char			state;
   std::stringstream	dataStream;
 
-  std::cout << "Is empty? " << client.getQueue().empty() << std::endl;
   if (!client.getQueue().empty())
     {
       std::cout << "HANDSHAKE" << std::endl;
@@ -153,18 +153,22 @@ int	Core::run()
   try
     {
       std::cout << "Starting server" << std::endl;
-      server.startAccept();
+      server.startAccept(mtx);
       std::cout << "Server start" << std::endl;
+      // Attention, ça pète ici parce que error_level est à CRITICAL_ERROR quand il n'y a pas de database !!!
+      // Décommenter la prochaine ligne pour que ça fonctionne au début
+      // error_level = 0;
       while (error_level != CRITICAL_CORE)
 	{
-	  server.useData();
+    std::unique_lock<std::mutex> lock(mtx);
+    server.cleanClients();
 	  clients = server.getClients();
+    server.readForEachClient(mtx);
+    cv.wait(lock);
 	  for (std::vector<Client*>::iterator client = clients.begin(); client != clients.end(); ++client)
 	    {
-	      if ((*client.base())->getSocket().available() > 0)
-		(*client.base())->receive();
-	      else if ((*client.base())->getState() != Client::states::OK)
-		handshake(*(*client.base()));
+	      if ((*client)->getState() != Client::states::OK)
+		handshake(*(*client));
 	      // else if (!(*client.base())->getQueue().empty() &&
 	      // 	       std::string(static_cast<char*>((*client.base())->getQueue().front())) ==
 	      // 	       std::string("PING\n"))
@@ -173,8 +177,8 @@ int	Core::run()
 	    }
 	  std::string user("User");
 	  newUserDB(user, "random key");
-
-	  server.releaseData();
+    server.run();
+	  lock.unlock();
 	}
     }
   catch (const std::exception &e)

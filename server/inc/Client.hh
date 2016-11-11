@@ -7,6 +7,9 @@
 # include <boost/bind.hpp>
 # include <boost/array.hpp>
 # include <iostream>
+# include <thread>
+# include <mutex>
+# include <condition_variable>
 # include "Protocol.h"
 
 # define DELIM "\n"
@@ -15,7 +18,6 @@ class Client {
 private:
   // Methods
   void                          handle_write(const boost::system::error_code &, const size_t &, std::string &);
-  void                          handleRead(const boost::system::error_code &);
 
   // Attributes
   boost::asio::streambuf        buffer;
@@ -24,9 +26,12 @@ private:
   int                           id;
   boost::asio::ip::tcp::socket  socket;
   bool                          isAlive;
+  std::thread                   thread;
+  bool                          isReading;
+  std::condition_variable       &cv;
 
 public:
-  Client(boost::asio::io_service &ioservice);
+  Client(boost::asio::io_service &ioservice, std::condition_variable &cv);
   virtual ~Client();
 
   // Methods
@@ -35,11 +40,15 @@ public:
   const char                    &getState() const;
   void                          setId(const int &);
   const int                     &getId() const;
-  void                          receive();
+  void                          receive(std::mutex &mtx);
+  void                          do_receive(std::mutex &mtx);
   void                          send(const std::string &);
   const std::queue<std::string> &getQueue() const;
   void                          popFromQueue();
   void                          close();
+  bool                          available() const;
+  bool                          isOpen() const;
+  bool                          is_alive() const;
 
   enum states
   {
