@@ -1,5 +1,7 @@
 #include "Client.hh"
 
+std::mutex mtx;
+
 Client::Client(boost::asio::io_service &ioservice, std::condition_variable &cv) : socket(ioservice), cv(cv)
 {
   isAlive = true;
@@ -47,33 +49,39 @@ boost::asio::ip::tcp::socket &Client::getSocket()
   return socket;
 }
 
-void Client::receive(std::mutex &mtx)
+void Client::receive(/*std::mutex &mtx*/)
 {
   if (isReading)
     return ;
   isReading = true;
-  thread = std::thread([&]{Client::do_receive(mtx);});
+  if (thread.joinable())
+    thread.join();
+  thread = std::thread([&]{Client::do_receive();});
 }
 
-void Client::do_receive(std::mutex &mtx)
+void Client::do_receive(/*std::mutex &mtx*/)
 {
+  std::unique_lock<std::mutex> lock(mtx);
   if (!socket.is_open())
     return ;
+  lock.unlock();
   try {
     boost::asio::read_until(socket, buffer, DELIM);
-    std::lock_guard<std::mutex> lock(mtx);
+    lock.lock();
     std::istream is(&buffer);
     std::string str;
     std::getline(is, str);
-    std::cout << "str = " << str << std::endl;
     queue.push(str);
     isReading = false;
     cv.notify_one();
+    lock.unlock();
   } catch (const std::exception &error) {
+    lock.lock();
     std::cerr << "Exception: " << error.what() << std::endl;
     isAlive = false;
     close();
     isReading = false;
+    lock.unlock();
   }
 }
 

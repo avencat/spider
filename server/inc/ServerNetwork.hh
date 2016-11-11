@@ -15,18 +15,18 @@ private:
   std::string                    readed;
   std::condition_variable        &cv;
 
-  void                           accept(std::mutex &mtx);
-  void                           handleAccept(Client *new_client, std::mutex &mtx);
+  void                           accept(/*std::mutex &mtx*/);
+  void                           handleAccept(Client *new_client/*, std::mutex &mtx*/);
 public:
   ServerNetwork(const unsigned short &port, std::condition_variable &cv);
   virtual ~ServerNetwork();
 
   // Methods
-  void                           startAccept(std::mutex &mtx);
+  void                           startAccept(/*std::mutex &mtx*/);
   virtual void                   stopService();
-  virtual void                   read(std::mutex &mtx);
+  virtual void                   read(/*std::mutex &mtx*/);
   virtual void                   write(const std::string &);
-  void                           readForEachClient(std::mutex &mtx);
+  void                           readForEachClient(/*std::mutex &mtx*/);
   void                           writeForEachClient(const std::string &);
   const std::vector<Client*>     getClients() const;
   void                           cleanClients();

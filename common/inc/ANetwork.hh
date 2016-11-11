@@ -26,7 +26,7 @@ public:
 
   // Methods
   virtual void stopService() = 0;
-  virtual void read(std::mutex &) = 0;
+  virtual void read(/*std::mutex &*/) = 0;
   virtual void write(const std::string &) = 0;
 };
 

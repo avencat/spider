@@ -46,7 +46,6 @@ private:
   int			error_level;
   std::vector<Client*>	clients;
   std::condition_variable cv;
-  std::mutex mtx;
 
   enum	errorLevels
     {
