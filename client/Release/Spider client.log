@@ -1,0 +1,3 @@
+﻿  Core.cpp
+LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification
+  Spider client.vcxproj -> C:\Users\vezia_l\Documents\Epitech\cpp_spider\client\Release\Spider client.exe

