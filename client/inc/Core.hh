@@ -14,7 +14,7 @@
 # include <iostream>
 # include <fstream>
 
-#include "Keylog.hh"
+# include "Keylog.hh"
 
 class Core
 {
