@@ -2,3 +2,4 @@
 -I./common/inc/
 -I./server/inc/
 -I./client/inc/
+-I./libs/sqlite3

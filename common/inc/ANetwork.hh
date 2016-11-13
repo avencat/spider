@@ -13,20 +13,21 @@
 
 # include <boost/asio.hpp>
 # include <iostream>
+# include <mutex>
 
 class ANetwork {
 protected:
-  boost::asio::io_service                     ioservice;
-  bool                                        isEnding;
+  boost::asio::io_service ioservice;
+  bool                    isEnding;
 
 public:
   ANetwork();
   virtual ~ANetwork();
 
   // Methods
-  virtual void stopService() = 0;
-  virtual void read() = 0;
-  virtual void write(const std::string &) = 0;
+  virtual void            read(std::mutex &) = 0;
+  virtual void            stopService() = 0;
+  virtual void            write(const std::string &) = 0;
 };
 
 #endif /* !ANETWORK_HH_ */

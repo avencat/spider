@@ -11,28 +11,27 @@ class ServerNetwork : public ANetwork {
 private:
   std::vector<Client*>           clients;
   std::thread                    thread;
-  std::mutex                     mtx;
   boost::asio::ip::tcp::acceptor acceptor;
   std::string                    readed;
+  std::condition_variable        &cv;
 
-  void                           accept();
-  void                           handleAccept(Client *new_client);
+  void                           accept(std::mutex &mtx);
+  void                           handleAccept(Client *new_client, std::mutex &mtx);
 public:
-  ServerNetwork(const unsigned short &port);
+  ServerNetwork(const unsigned short &port, std::condition_variable &cv);
   virtual ~ServerNetwork();
 
   // Methods
-  void                           startAccept();
+  void                           startAccept(std::mutex &mtx);
   virtual void                   stopService();
-  virtual void                   read();
+  virtual void                   read(std::mutex &mtx);
   virtual void                   write(const std::string &);
-  void                           readForEachClient();
+  void                           readForEachClient(std::mutex &mtx);
   void                           writeForEachClient(const std::string &);
-  // MUST BE CALL BEFORE USING ANY OF THIS OBJECT DATA
-  void                           useData();
-  // MUST BE CALL AFTER USING ANY OF THIS OBJECT DATA
-  void                           releaseData();
   const std::vector<Client*>     getClients() const;
+  const Client                   *getClientById(const int &id) const;
+  void                           cleanClients();
+  void                           run();
 };
 
 #endif /* !SERVERNETWORK_HH_ */

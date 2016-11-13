@@ -23,12 +23,18 @@ bool ClientNetwork::connect(const std::string &ip, const unsigned short &port)
   }
 }
 
-void ClientNetwork::read()
+void ClientNetwork::read(std::mutex &mtx)
+{
+  (void)mtx;
+  receive();
+}
+
+void ClientNetwork::receive()
 {
   if (!isEnding && socket.available() > 0) {
     read_buffer.assign(0);
     socket.receive(boost::asio::buffer(read_buffer));
-    queue.push(static_cast<void *>(read_buffer.c_array()));
+    queue.push(read_buffer.c_array());
   }
 }
 
@@ -41,11 +47,10 @@ void ClientNetwork::handle_write(const boost::system::error_code& error,
   }
 }
 
-void ClientNetwork::write(const void *to_send)
+void ClientNetwork::write(const std::string &to_send)
 {
   if (socket.is_open()) {
-    boost::asio::async_write(socket, boost::asio::buffer(std::string(
-                             static_cast<char *>(const_cast<void *>(to_send)))),
+    boost::asio::async_write(socket, boost::asio::buffer(to_send),
                              boost::bind(&ClientNetwork::handle_write,
                              this, boost::asio::placeholders::error,
                              boost::asio::placeholders::bytes_transferred));

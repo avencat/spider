@@ -11,8 +11,8 @@
 #ifndef CORE_HH_
 # define CORE_HH_
 
-#include <iostream>
-#include <fstream>
+# include <iostream>
+# include <fstream>
 
 #include "Keylog.hh"
 

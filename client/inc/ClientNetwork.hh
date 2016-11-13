@@ -9,16 +9,17 @@
 class ClientNetwork : public ANetwork {
 private:
   boost::asio::ip::tcp::socket socket;
-  std::queue<void *>           queue;
+  std::queue<std::string>      queue;
   boost::array<char, 792>      read_buffer;
 
 public:
   ClientNetwork();
   virtual ~ClientNetwork();
 
-  virtual void read();
-  virtual void write(const void *);
+  virtual void read(std::mutex &);
+  virtual void write(const std::string &);
   virtual void stopService();
+  void         receive();
   bool         connect(const std::string &ip, const unsigned short &port);
   void         handle_write(const boost::system::error_code& error, const size_t &bytes_transferred);
 };
