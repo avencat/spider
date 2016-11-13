@@ -33,6 +33,7 @@ int	Openssl::generateKey()
 		std::cout << "Failed to generate rsa" << std::endl;
 		return (-1);
 	}
+	this->rsa_size = RSA_size(this->rsa);
 	BIO		*bio;
 	if ((bio = BIO_new(BIO_s_mem())) == NULL)
 	{
@@ -70,14 +71,44 @@ int	Openssl::generateKey()
 	return 0;
 }
 
-std::string Openssl::cipher(std::string Data, RSA *PublicKey)
+char	*Openssl::cipher(char *Data)
 {
-	return (Data);
+	int		res;
+	char	*encrypted;
+
+	if ((encrypted = reinterpret_cast<char *>(malloc(this->rsa_size))) == NULL)
+	{
+		std::cout << "Malloc failed" << std::endl;
+		return (Data);
+	}
+
+	if ((res = RSA_public_encrypt(strlen(Data) + 1, (unsigned char*)Data, (unsigned char*)encrypted, this->rsa, RSA_PKCS1_OAEP_PADDING)) == -1)
+	{
+		std::cout << "Error encrypting message" << std::endl;
+		return (Data);
+	}
+	//RSA_private_encrypt(flen, Data, encrypted, this->rsa, 0);
+
+	return (encrypted);
 }
 
-std::string Openssl::unCipher(std::string Data, RSA *PrivateKey)
+char	*Openssl::unCipher(char	*Data)
 {
-	return (Data);
+	int		res;
+	char	*decrypted;
+
+	if ((decrypted = reinterpret_cast<char *>(malloc(this->rsa_size))) == NULL)
+	{
+		std::cout << "Malloc failed" << std::endl;
+		return (Data);
+	}
+	if ((res = RSA_private_decrypt(strlen(Data) + 1, (unsigned char*)Data, (unsigned char*)decrypted, this->rsa, RSA_PKCS1_OAEP_PADDING)) == -1)
+	{
+		std::cout << "Error decrypting message" << std::endl;
+		return (Data);
+	}
+	//RSA_public_decrypt();
+	return (decrypted);
 }
 
 std::string	Openssl::getPrivateKey()
@@ -93,8 +124,11 @@ std::string	Openssl::getPublicKey()
 int main()
 {
 	Openssl	op;
+	char *test;
 
 	op.generateKey();
-	std::cout << op.getPublicKey();
+	test = op.cipher("Hello World");
+	std::cout << op.cipher(test);
+	//op.getPrivateKey();
 	return 0;
 }

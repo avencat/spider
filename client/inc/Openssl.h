@@ -11,24 +11,25 @@
 #ifndef OPENSSL_H_
 # define OPENSSL_H_
 
+#include "AOpenssl.h"
 #include <openssl/rsa.h>
 #include <openssl/pem.h>
 #include <iostream>
 #include <string>
-#include "stdafx.h"
 
-class Openssl
+class Openssl : public AOpenssl
 {
 private:
-	RSA *rsa;
+	RSA			*rsa;
+	int			rsa_size;
 	std::string	PrivateKey;
 	std::string	PublicKey;
 public:
 	Openssl();
 	~Openssl();
-	int	generateKey();
-	std::string cipher(std::string Data, RSA *PublicKey);
-	std::string unCipher(std::string Data, RSA *PrivateKey);
+	int			generateKey();
+	char		*cipher(char	*Data);
+	char		*unCipher(char	*Data);
 	std::string	getPrivateKey();
 	std::string	getPublicKey();
 };
